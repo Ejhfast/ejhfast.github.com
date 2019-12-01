@@ -34,7 +34,7 @@ theme: minima
 plugins:
   - jekyll-feed
 markdown: kramdown
-permalink: /:categories/:year/:month/:title:output_ext
+permalink: /:categories/:year/:month/:title/
 
 # Exclude from processing.
 # The following items will not be processed, by default.
