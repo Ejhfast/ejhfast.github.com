@@ -146,7 +146,7 @@ blockquote{
 }
 .article_date{
     float: right;
-    margin-right:40px;
+    /* margin-right:40px; */
 }
 .project .article a{
     /* font-style: italic; */
