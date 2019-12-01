@@ -1,0 +1,28 @@
+<html>
+    <head>
+        <title>Ethan Fast | {{ page.title }}</title>
+        <meta name="author" content="Ethan Fast" />
+        <link rel="stylesheet" href="/css/main.css" type="text/css" media="screen, projection" />
+    </head>
+    <div id="content">
+        <div id="intro">
+            <h1><a href="/">Ethan Fast</a></h1>
+        </div>
+        <div id="links" class="block">
+                <div class="link"><a href="/#companies">Companies</a></div>
+            <div class="link"><a href="/#research">Research</a></div>
+            <div class="link"><a href="/#open_source">Open Source</a></div>
+            <div class="link"><a href="/#press">Press</a></div>
+            <div class="link"><a href="/#essays">Essays</a></div>
+            <div class="link"><a href="/#contact">Contact</a></div>
+        </div>
+        <div class="post">
+            <h1>{{ page.title }}</h1>
+            <div class="date">{{ page.post_date }}</div>
+            {{ content }}
+        </div>
+        <div id="footer">
+            © 2019 - Ethan Fast
+        </div>
+    </div>
+</html>
