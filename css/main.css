@@ -83,10 +83,13 @@ blockquote{
 #intro h1 a{
     text-decoration: none;
 }
+#profile_img{
+    width:500;
+}
 
 #content{
     margin:30px auto;
-    width: 500px;
+    width: 500;
 }
 
 .project_block{
