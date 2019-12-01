@@ -18,22 +18,23 @@
 # You can create any custom variable you would like, and they will be accessible
 # in the templates via {{ site.myvariable }}.
 
-title: Your awesome title
-email: your-email@example.com
+title: Ethan Fast
+email: ejhfast@gmail.com
 description: >- # this means to ignore newlines until "baseurl:"
-  Write an awesome description for your new site here. You can edit this
-  line in _config.yml. It will appear in your document head meta (for
-  Google search results) and in your feed.xml site description.
+  Ethan Fast is currently co-founder and CTO of Nash, a non-custodial exchange and asset management platform for cryptocurrencies and other tokens. 
+  He has a PhD in Computer Science from Stanford and has published articles in leading journals and conferences, such as Nature, CHI, EMNLP, and AAAI. 
+  Previously, he co-founded Proxino, a web analytics company funded by Y Combinator.
 baseurl: "" # the subpath of your site, e.g. /blog
-url: "" # the base hostname & protocol for your site, e.g. http://example.com
-twitter_username: jekyllrb
-github_username:  jekyll
+url: "http://ethanfast.com" # the base hostname & protocol for your site, e.g. http://example.com
+twitter_username: unignorant
+github_username:  ejhfast
 
 # Build settings
 theme: minima
 plugins:
   - jekyll-feed
 markdown: kramdown
+permalink: /:categories/:year/:month/:title:output_ext
 
 # Exclude from processing.
 # The following items will not be processed, by default.
