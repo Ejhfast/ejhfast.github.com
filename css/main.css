@@ -16,8 +16,8 @@ body {
     background: var(--bg);
     color: var(--text);
     font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
-    font-size: 15px;
-    line-height: 1.42;
+    font-size: 14px;
+    line-height: 1.36;
 }
 
 a {
@@ -83,8 +83,8 @@ blockquote {
 
 #content {
     margin: 0 auto;
-    max-width: 1040px;
-    padding: 24px 28px 36px;
+    max-width: 980px;
+    padding: 20px 26px 32px;
 }
 
 #intro {
@@ -93,8 +93,8 @@ blockquote {
     display: grid;
     gap: 18px;
     grid-template-columns: minmax(180px, 1fr) minmax(300px, 2fr);
-    margin-bottom: 30px;
-    padding-bottom: 14px;
+    margin-bottom: 18px;
+    padding-bottom: 10px;
 }
 
 #intro h1 a {
@@ -127,146 +127,109 @@ blockquote {
     color: var(--text);
 }
 
-.section {
+.timeline-intro {
     border-bottom: 1px solid var(--line);
-    margin-bottom: 24px;
-    padding-bottom: 24px;
-}
-
-.lead-grid,
-.split-section {
-    display: grid;
-    gap: 28px;
-    grid-template-columns: minmax(170px, 0.55fr) minmax(0, 1.9fr);
-}
-
-.lead-copy {
-    column-gap: 28px;
-    columns: 2 240px;
-}
-
-.lead-copy p {
-    break-inside: avoid;
-}
-
-.section-heading {
+    columns: 2 280px;
+    column-gap: 32px;
     margin-bottom: 10px;
+    padding-bottom: 10px;
 }
 
-.sticky-heading {
-    align-self: start;
-    position: sticky;
-    top: 24px;
-}
-
-.kicker {
-    color: var(--accent);
-    font-size: 0.68rem;
-    font-weight: 700;
-    letter-spacing: 0.06em;
-    margin-bottom: 0.35rem;
-    text-transform: uppercase;
-}
-
-.item-grid {
-    display: grid;
-    column-gap: 24px;
-    row-gap: 8px;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-}
-
-.project {
-    border-top: 1px solid var(--line);
-    padding: 8px 0 0;
-}
-
-.project.featured {
-    border-color: var(--accent);
-}
-
-.project-topline {
-    align-items: baseline;
-    display: flex;
-    gap: 10px;
-    justify-content: space-between;
-    margin-bottom: 0.22rem;
-}
-
-.project-topline span,
-.meta-row,
-.link-list time,
-.post-list time,
-.date {
+.timeline-intro p {
+    break-inside: avoid;
     color: var(--muted);
-    font-size: 0.76rem;
-    white-space: nowrap;
-}
-
-.project p {
-    font-size: 0.9rem;
     margin-bottom: 0;
 }
 
-.meta-row {
+.intro-links {
     display: flex;
     flex-wrap: wrap;
-    gap: 4px 10px;
-    margin-top: 0.35rem;
+    gap: 4px 14px;
 }
 
-.meta-row a,
-.meta-row span {
-    color: var(--muted);
-    padding: 0;
-    text-decoration: none;
-}
-
-.meta-row a {
-    text-decoration: underline;
-    text-decoration-color: var(--accent);
-    text-underline-offset: 3px;
-}
-
-.list-stack {
-    display: grid;
-    gap: 7px;
-}
-
-.list-stack.compact .project {
-    padding: 8px 0 0;
-}
-
-.post-list,
-.link-list {
-    border-top: 1px solid var(--line);
-    display: grid;
-}
-
-.post-list a,
-.link-list a {
-    align-items: baseline;
+.timeline-summary {
     border-bottom: 1px solid var(--line);
     display: grid;
-    gap: 18px;
-    grid-template-columns: minmax(0, 1fr) auto;
-    padding: 6px 0;
-    text-decoration: none;
+    gap: 10px;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    margin-bottom: 16px;
+    padding-bottom: 12px;
 }
 
-.post-list span,
-.link-list span {
-    text-decoration: underline;
-    text-decoration-color: var(--accent);
-    text-underline-offset: 3px;
+.timeline-summary div {
+    min-width: 0;
+}
+
+.timeline-summary strong {
+    display: block;
+    font-size: 0.98rem;
+    font-weight: 600;
+}
+
+.timeline-summary span,
+.timeline-heading p,
+.tag,
+.timeline time,
+.date {
+    color: var(--muted);
+    font-size: 0.76rem;
+}
+
+.timeline-section {
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 18px;
+    padding-bottom: 18px;
+}
+
+.timeline-heading {
+    display: grid;
+    gap: 18px;
+    grid-template-columns: 104px 1fr;
+    margin-bottom: 5px;
+}
+
+.timeline-heading h2,
+.timeline-heading p {
+    margin-bottom: 0;
+}
+
+.timeline {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.timeline li {
+    border-top: 1px solid var(--line);
+    display: grid;
+    gap: 8px;
+    grid-template-columns: 72px 76px minmax(0, 1fr);
+    margin: 0;
+    padding: 5px 0;
+}
+
+.timeline p {
+    margin-bottom: 0;
+}
+
+.timeline .note {
+    color: var(--muted);
+    grid-column: 3;
+    margin-top: -3px;
+}
+
+.timeline time {
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+.tag {
+    text-transform: lowercase;
+    white-space: nowrap;
 }
 
 .contact-section {
     border-bottom: 0;
-    max-width: 780px;
-}
-
-.contact-section h2 {
-    margin-bottom: 0.5rem;
 }
 
 .post-shell {
@@ -274,13 +237,8 @@ blockquote {
 }
 
 .post {
-    border: 1px solid var(--line);
-    padding: 20px;
-}
-
-.post h1 {
-    font-size: 1.6rem;
-    margin-bottom: 0.4rem;
+    border-top: 1px solid var(--line);
+    padding-top: 14px;
 }
 
 sup {
@@ -300,35 +258,37 @@ sup a {
 
 @media (max-width: 820px) {
     #content {
-        padding: 22px 18px 34px;
+        padding: 18px 16px 30px;
     }
 
-    #intro,
-    .lead-grid,
-    .split-section,
-    .item-grid {
+    #intro {
         grid-template-columns: 1fr;
     }
 
     #intro {
-        margin-bottom: 36px;
+        margin-bottom: 18px;
     }
 
     #links {
         justify-content: flex-start;
     }
 
-    .sticky-heading {
-        position: static;
-    }
-
-    .lead-copy {
+    .timeline-intro {
         columns: auto;
     }
 
-    .post-list a,
-    .link-list a {
+    .timeline-summary {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .timeline-heading,
+    .timeline li {
         gap: 3px;
         grid-template-columns: 1fr;
+    }
+
+    .timeline .note {
+        grid-column: auto;
+        margin-top: 0;
     }
 }
