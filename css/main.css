@@ -93,19 +93,17 @@ blockquote {
     display: grid;
     gap: 18px;
     grid-template-columns: minmax(180px, 1fr) minmax(300px, 2fr);
-    margin-bottom: 18px;
-    padding-bottom: 10px;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
 }
 
 #intro h1 a {
     text-decoration: none;
 }
 
-.identity p,
 .section-heading p,
 .lead-copy p,
-.project p,
-.contact-section p {
+.project p {
     color: var(--muted);
 }
 
@@ -129,45 +127,17 @@ blockquote {
 
 .timeline-intro {
     border-bottom: 1px solid var(--line);
-    columns: 2 280px;
-    column-gap: 32px;
-    margin-bottom: 10px;
-    padding-bottom: 10px;
+    display: grid;
+    gap: 8px;
+    margin-bottom: 0;
+    padding-bottom: 14px;
 }
 
 .timeline-intro p {
-    break-inside: avoid;
     color: var(--muted);
     margin-bottom: 0;
 }
 
-.intro-links {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 4px 14px;
-}
-
-.timeline-summary {
-    border-bottom: 1px solid var(--line);
-    display: grid;
-    gap: 10px;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-    margin-bottom: 16px;
-    padding-bottom: 12px;
-}
-
-.timeline-summary div {
-    min-width: 0;
-}
-
-.timeline-summary strong {
-    display: block;
-    font-size: 0.98rem;
-    font-weight: 600;
-}
-
-.timeline-summary span,
-.timeline-heading p,
 .tag,
 .timeline time,
 .date {
@@ -182,14 +152,10 @@ blockquote {
 }
 
 .timeline-heading {
-    display: grid;
-    gap: 18px;
-    grid-template-columns: 104px 1fr;
-    margin-bottom: 5px;
+    padding: 14px 0;
 }
 
-.timeline-heading h2,
-.timeline-heading p {
+.timeline-heading h2 {
     margin-bottom: 0;
 }
 
@@ -218,6 +184,10 @@ blockquote {
     margin-top: -3px;
 }
 
+.timeline .note a {
+    color: var(--muted);
+}
+
 .timeline time {
     font-variant-numeric: tabular-nums;
     white-space: nowrap;
@@ -228,17 +198,40 @@ blockquote {
     white-space: nowrap;
 }
 
-.contact-section {
-    border-bottom: 0;
-}
-
 .post-shell {
     max-width: 780px;
 }
 
+.post-shell #intro {
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 22px;
+    padding-bottom: 12px;
+}
+
 .post {
-    border-top: 1px solid var(--line);
-    padding-top: 14px;
+    padding-top: 0;
+    font-size: 0.96rem;
+    line-height: 1.52;
+}
+
+.post-header {
+    border-bottom: 0;
+    margin-bottom: 24px;
+    padding-bottom: 0;
+}
+
+.post-header h1 {
+    font-size: 1.18rem;
+    margin-bottom: 5px;
+}
+
+.post-header .date {
+    margin-bottom: 0;
+    font-size: 0.76rem;
+}
+
+.post p {
+    margin-bottom: 1.05rem;
 }
 
 sup {
@@ -273,15 +266,6 @@ sup a {
         justify-content: flex-start;
     }
 
-    .timeline-intro {
-        columns: auto;
-    }
-
-    .timeline-summary {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-    .timeline-heading,
     .timeline li {
         gap: 3px;
         grid-template-columns: 1fr;
