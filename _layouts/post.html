@@ -1,29 +1,35 @@
-<html>
+<!doctype html>
+<html lang="en">
     <head>
         <title>Ethan Fast | {{ page.title }}</title>
         <meta name="author" content="Ethan Fast" />
-        <link rel="stylesheet" href="/css/main.css" type="text/css" media="screen, projection" />
-        <link rel="shortcut icon" type="image/png" href="/resources/favicon.png">
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="stylesheet" href="{{ '/css/main.css' | relative_url }}" type="text/css" media="screen, projection" />
+        <link rel="shortcut icon" type="image/png" href="{{ '/resources/favicon.png' | relative_url }}">
     </head>
-    <div id="content">
-        <div id="intro">
-            <h1><a href="/">Ethan Fast</a></h1>
+    <body>
+        <div id="content" class="post-shell">
+            <header id="intro">
+                <div class="identity">
+                    <h1><a href="{{ '/' | relative_url }}">Ethan Fast</a></h1>
+                </div>
+                <nav id="links" aria-label="Primary navigation">
+                    <a href="{{ '/#companies' | relative_url }}">Companies</a>
+                    <a href="{{ '/#research' | relative_url }}">Research</a>
+                    <a href="{{ '/#writing' | relative_url }}">Writing</a>
+                    <a href="{{ '/#open-source' | relative_url }}">Open source</a>
+                    <a href="{{ '/#press' | relative_url }}">Press</a>
+                    <a href="{{ '/#contact' | relative_url }}">Contact</a>
+                </nav>
+            </header>
+            <main class="post">
+                <h1>{{ page.title }}</h1>
+                <div class="date">{{ page.post_date }}</div>
+                {{ content }}
+            </main>
+            <footer id="footer">
+                © 2026 Ethan Fast
+            </footer>
         </div>
-        <div id="links" class="block">
-                <div class="link"><a href="/#companies">Companies</a></div>
-            <div class="link"><a href="/#research">Research</a></div>
-            <div class="link"><a href="/#open_source">Open Source</a></div>
-            <div class="link"><a href="/#press">Press</a></div>
-            <div class="link"><a href="/#essays">Essays</a></div>
-            <div class="link"><a href="/#contact">Contact</a></div>
-        </div>
-        <div class="post">
-            <h1>{{ page.title }}</h1>
-            <div class="date">{{ page.post_date }}</div>
-            {{ content }}
-        </div>
-        <div id="footer">
-            © 2019 - Ethan Fast
-        </div>
-    </div>
+    </body>
 </html>
