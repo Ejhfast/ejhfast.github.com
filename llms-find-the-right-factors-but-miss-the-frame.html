@@ -14,7 +14,6 @@
   --line:   #dedbd2;
   --accent: #315f5a;
   --bar:    #1e1f1c;
-  --range:  #b9b6ab;
   --hover:  #f4f1e8;
 }
 html, body { margin: 0; padding: 0; }
@@ -116,16 +115,6 @@ p  { margin-bottom: 1rem; }
 .section-heading a:hover {
   color: var(--accent);
 }
-
-.toc {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px 18px;
-  margin: 0 0 18px;
-  font-size: 0.86rem;
-}
-.toc a { color: var(--muted); text-decoration: none; }
-.toc a:hover { color: var(--accent); text-decoration: underline; text-decoration-color: var(--accent); }
 
 /* QUESTION SECTION */
 .question {
@@ -233,24 +222,6 @@ p  { margin-bottom: 1rem; }
   display: flex;
   align-items: center;
 }
-.row-range {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  height: 1px;
-  background: var(--range);
-}
-.row-range::before, .row-range::after {
-  content: "";
-  position: absolute;
-  top: -2px;
-  width: 1px;
-  height: 5px;
-  background: var(--range);
-}
-.row-range::before { left: 0; }
-.row-range::after  { right: 0; }
-
 .row-bar {
   height: 10px;
   background: var(--bar);
@@ -384,17 +355,9 @@ p  { margin-bottom: 1rem; }
 
 <div class="methodology">
   <p>
-    <strong>Methodology.</strong> The GPT-5.4 API was queried 10 times per question and asked to return 10 plausible thesis statements each time. The 100 thesis statements per question were then scored against each other in a pairwise Elo tournament, also run on GPT-5.4 via a few thousand independent API calls (one per matchup), then clustered by a human and Claude Opus 4.7. Each cluster was given a summary and is depicted below alongside the size of its sample and the mean Elo score of its members.
-  </p>
-  <p>
-    Bars show each cluster's <strong>mean Elo</strong>; the faint line behind the bar marks the min-to-max range within the cluster. Hover any row for the full cluster description and the top-ranked response.
+    <strong>Methodology.</strong> The GPT-5.4 API was queried 10 times per question and asked to return 10 plausible thesis statements each time. The 100 thesis statements per question were then scored against each other in a pairwise Elo tournament, also run on GPT-5.4 via a few thousand independent API calls (one per matchup), then clustered by a human and Claude Opus 4.7. Each cluster was given a summary and is depicted below alongside the size of its sample and the mean Elo score of its members. Bars show each cluster's <strong>mean Elo</strong>. Hover any row for the full cluster description and the top-ranked response.
   </p>
 </div>
-
-<nav class="toc"><a href="#rl_progress_timelines">Q1. RL progress and timelines</a>
-<a href="#foundation_model_profit">Q2. Foundation model profitability</a>
-<a href="#ai_foundation_deployment">Q3. OpenAI Foundation: how to deploy $180B</a>
-<a href="#countries_outside_ai_chain">Q4. Countries outside the AI production chain</a></nav>
 
 
     <section class="question" id="rl_progress_timelines">
@@ -420,7 +383,6 @@ p  { margin-bottom: 1rem; }
           <div class="row-score">1599</div>
           <div class="row-label">verifier dense signal</div>
           <div class="row-track">
-            <div class="row-range" style="left:42.20316470588233%; width:65.55601088235294%;"></div>
             <div class="row-bar" style="width:88.07131678200696%;"></div>
             <div class="row-count" style="left:88.07131678200696%;">17</div>
           </div>
@@ -438,7 +400,6 @@ p  { margin-bottom: 1rem; }
           <div class="row-score">1573</div>
           <div class="row-label">inference time search</div>
           <div class="row-track">
-            <div class="row-range" style="left:28.45515882352943%; width:81.56617823529412%;"></div>
             <div class="row-bar" style="width:80.17929326797383%;"></div>
             <div class="row-count" style="left:80.17929326797383%;">9</div>
           </div>
@@ -456,7 +417,6 @@ p  { margin-bottom: 1rem; }
           <div class="row-score">1561</div>
           <div class="row-label">search distill flywheel</div>
           <div class="row-track">
-            <div class="row-range" style="left:39.9932994117647%; width:71.30641882352941%;"></div>
             <div class="row-bar" style="width:76.90568160130718%;"></div>
             <div class="row-count" style="left:76.90568160130718%;">9</div>
           </div>
@@ -474,7 +434,6 @@ p  { margin-bottom: 1rem; }
           <div class="row-score">1551</div>
           <div class="row-label">off policy replay</div>
           <div class="row-track">
-            <div class="row-range" style="left:46.73041970588235%; width:63.38501764705885%;"></div>
             <div class="row-bar" style="width:73.95989095588233%;"></div>
             <div class="row-count" style="left:73.95989095588233%;">4</div>
           </div>
@@ -492,7 +451,6 @@ p  { margin-bottom: 1rem; }
           <div class="row-score">1532</div>
           <div class="row-label">task decomposition</div>
           <div class="row-track">
-            <div class="row-range" style="left:24.377186764705876%; width:84.6057241176471%;"></div>
             <div class="row-bar" style="width:68.16146245798322%;"></div>
             <div class="row-count" style="left:68.16146245798322%;">14</div>
           </div>
@@ -510,7 +468,6 @@ p  { margin-bottom: 1rem; }
           <div class="row-score">1504</div>
           <div class="row-label">synthetic env selfplay</div>
           <div class="row-track">
-            <div class="row-range" style="left:28.57324588235295%; width:57.3495855882353%;"></div>
             <div class="row-bar" style="width:59.96603697058824%;"></div>
             <div class="row-count" style="left:59.96603697058824%;">10</div>
           </div>
@@ -528,7 +485,6 @@ p  { margin-bottom: 1rem; }
           <div class="row-score">1463</div>
           <div class="row-label">data quality over flops</div>
           <div class="row-track">
-            <div class="row-range" style="left:26.23959588235293%; width:50.768460588235286%;"></div>
             <div class="row-bar" style="width:47.942124058823566%;"></div>
             <div class="row-count" style="left:47.942124058823566%;">5</div>
           </div>
@@ -546,7 +502,6 @@ p  { margin-bottom: 1rem; }
           <div class="row-score">1454</div>
           <div class="row-label">internal cot shaping <span class="row-tag">singleton</span></div>
           <div class="row-track">
-            <div class="row-range" style="left:45.27357029411767%; width:0.0%;"></div>
             <div class="row-bar" style="width:45.27357029411767%;"></div>
             <div class="row-count" style="left:45.27357029411767%;">1</div>
           </div>
@@ -564,7 +519,6 @@ p  { margin-bottom: 1rem; }
           <div class="row-score">1442</div>
           <div class="row-label">capabilities compound</div>
           <div class="row-track">
-            <div class="row-range" style="left:37.91207058823529%; width:7.844411764705889%;"></div>
             <div class="row-bar" style="width:41.8342764705882%;"></div>
             <div class="row-count" style="left:41.8342764705882%;">2</div>
           </div>
@@ -582,7 +536,6 @@ p  { margin-bottom: 1rem; }
           <div class="row-score">1427</div>
           <div class="row-label">parallelism engineering</div>
           <div class="row-track">
-            <div class="row-range" style="left:33.617893529411795%; width:7.550624117647047%;"></div>
             <div class="row-bar" style="width:37.39320558823532%;"></div>
             <div class="row-count" style="left:37.39320558823532%;">2</div>
           </div>
@@ -600,7 +553,6 @@ p  { margin-bottom: 1rem; }
           <div class="row-score">1411</div>
           <div class="row-label">pretraining still dominates</div>
           <div class="row-track">
-            <div class="row-range" style="left:12.418751176470618%; width:60.64289852941175%;"></div>
             <div class="row-bar" style="width:32.52256849673205%;"></div>
             <div class="row-count" style="left:32.52256849673205%;">9</div>
           </div>
@@ -618,7 +570,6 @@ p  { margin-bottom: 1rem; }
           <div class="row-score">1405</div>
           <div class="row-label">world model planner <span class="row-tag">singleton</span></div>
           <div class="row-track">
-            <div class="row-range" style="left:30.97763500000002%; width:0.0%;"></div>
             <div class="row-bar" style="width:30.97763500000002%;"></div>
             <div class="row-count" style="left:30.97763500000002%;">1</div>
           </div>
@@ -636,7 +587,6 @@ p  { margin-bottom: 1rem; }
           <div class="row-score">1401</div>
           <div class="row-label">critic actor reward hacking <span class="row-tag">singleton</span></div>
           <div class="row-track">
-            <div class="row-range" style="left:29.601194999999986%; width:0.0%;"></div>
             <div class="row-bar" style="width:29.601194999999986%;"></div>
             <div class="row-count" style="left:29.601194999999986%;">1</div>
           </div>
@@ -654,7 +604,6 @@ p  { margin-bottom: 1rem; }
           <div class="row-score">1398</div>
           <div class="row-label">system design multiplicative <span class="row-tag">singleton</span></div>
           <div class="row-track">
-            <div class="row-range" style="left:28.77704794117649%; width:0.0%;"></div>
             <div class="row-bar" style="width:28.77704794117649%;"></div>
             <div class="row-count" style="left:28.77704794117649%;">1</div>
           </div>
@@ -672,7 +621,6 @@ p  { margin-bottom: 1rem; }
           <div class="row-score">1387</div>
           <div class="row-label">algorithmic efficiency</div>
           <div class="row-track">
-            <div class="row-range" style="left:17.059909705882387%; width:26.1495985294117%;"></div>
             <div class="row-bar" style="width:25.490287287581705%;"></div>
             <div class="row-count" style="left:25.490287287581705%;">9</div>
           </div>
@@ -690,7 +638,6 @@ p  { margin-bottom: 1rem; }
           <div class="row-score">1376</div>
           <div class="row-label">rl small so ooms feasible <span class="row-tag">singleton</span></div>
           <div class="row-track">
-            <div class="row-range" style="left:22.301165882352922%; width:0.0%;"></div>
             <div class="row-bar" style="width:22.301165882352922%;"></div>
             <div class="row-count" style="left:22.301165882352922%;">1</div>
           </div>
@@ -708,7 +655,6 @@ p  { margin-bottom: 1rem; }
           <div class="row-score">1335</div>
           <div class="row-label">measurement artifact</div>
           <div class="row-track">
-            <div class="row-range" style="left:5.086564411764732%; width:14.634302352941136%;"></div>
             <div class="row-bar" style="width:10.221789999999976%;"></div>
             <div class="row-count" style="left:10.221789999999976%;">3</div>
           </div>
@@ -726,7 +672,6 @@ p  { margin-bottom: 1rem; }
           <div class="row-score">1327</div>
           <div class="row-label">capability threshold pipeline loop <span class="row-tag">singleton</span></div>
           <div class="row-track">
-            <div class="row-range" style="left:8.046313823529424%; width:0.0%;"></div>
             <div class="row-bar" style="width:8.046313823529424%;"></div>
             <div class="row-count" style="left:8.046313823529424%;">1</div>
           </div>
@@ -744,7 +689,6 @@ p  { margin-bottom: 1rem; }
           <div class="row-score">1319</div>
           <div class="row-label">better problem formulations <span class="row-tag">singleton</span></div>
           <div class="row-track">
-            <div class="row-range" style="left:5.691787352941178%; width:0.0%;"></div>
             <div class="row-bar" style="width:5.691787352941178%;"></div>
             <div class="row-count" style="left:5.691787352941178%;">1</div>
           </div>
@@ -776,7 +720,6 @@ p  { margin-bottom: 1rem; }
           <div class="row-score">1613</div>
           <div class="row-label">production tooling moat</div>
           <div class="row-track">
-            <div class="row-range" style="left:72.72492147058823%; width:35.32570029411765%;"></div>
             <div class="row-bar" style="width:92.14352717647061%;"></div>
             <div class="row-count" style="left:92.14352717647061%;">5</div>
           </div>
@@ -794,7 +737,6 @@ p  { margin-bottom: 1rem; }
           <div class="row-score">1592</div>
           <div class="row-label">workflow outcome pricing</div>
           <div class="row-track">
-            <div class="row-range" style="left:45.00604411764705%; width:64.86461176470591%;"></div>
             <div class="row-bar" style="width:85.98888134191176%;"></div>
             <div class="row-count" style="left:85.98888134191176%;">16</div>
           </div>
@@ -812,7 +754,6 @@ p  { margin-bottom: 1rem; }
           <div class="row-score">1564</div>
           <div class="row-label">enterprise private contracts</div>
           <div class="row-track">
-            <div class="row-range" style="left:65.23271000000003%; width:24.56827970588232%;"></div>
             <div class="row-bar" style="width:77.51684985294118%;"></div>
             <div class="row-count" style="left:77.51684985294118%;">2</div>
           </div>
@@ -830,7 +771,6 @@ p  { margin-bottom: 1rem; }
           <div class="row-score">1557</div>
           <div class="row-label">regulatory compliance moat</div>
           <div class="row-track">
-            <div class="row-range" style="left:23.012521470588233%; width:76.46158117647059%;"></div>
             <div class="row-bar" style="width:75.49932674208148%;"></div>
             <div class="row-count" style="left:75.49932674208148%;">13</div>
           </div>
@@ -848,7 +788,6 @@ p  { margin-bottom: 1rem; }
           <div class="row-score">1533</div>
           <div class="row-label">distribution channel ownership</div>
           <div class="row-track">
-            <div class="row-range" style="left:46.36886411764709%; width:60.62245647058823%;"></div>
             <div class="row-bar" style="width:68.41834581699352%;"></div>
             <div class="row-count" style="left:68.41834581699352%;">9</div>
           </div>
@@ -866,7 +805,6 @@ p  { margin-bottom: 1rem; }
           <div class="row-score">1493</div>
           <div class="row-label">government defense contracts</div>
           <div class="row-track">
-            <div class="row-range" style="left:45.67425352941173%; width:17.407431470588257%;"></div>
             <div class="row-bar" style="width:56.801655588235334%;"></div>
             <div class="row-count" style="left:56.801655588235334%;">3</div>
           </div>
@@ -884,7 +822,6 @@ p  { margin-bottom: 1rem; }
           <div class="row-score">1481</div>
           <div class="row-label">reliability sla premium</div>
           <div class="row-track">
-            <div class="row-range" style="left:22.68249558823527%; width:60.97001647058826%;"></div>
             <div class="row-bar" style="width:53.16750382352941%;"></div>
             <div class="row-count" style="left:53.16750382352941%;">2</div>
           </div>
@@ -902,7 +839,6 @@ p  { margin-bottom: 1rem; }
           <div class="row-score">1476</div>
           <div class="row-label">data flywheel</div>
           <div class="row-track">
-            <div class="row-range" style="left:29.22169647058822%; width:67.16366264705886%;"></div>
             <div class="row-bar" style="width:51.72390216577543%;"></div>
             <div class="row-count" style="left:51.72390216577543%;">11</div>
           </div>
@@ -920,7 +856,6 @@ p  { margin-bottom: 1rem; }
           <div class="row-score">1471</div>
           <div class="row-label">inference cost leadership</div>
           <div class="row-track">
-            <div class="row-range" style="left:17.967794705882355%; width:64.03617117647059%;"></div>
             <div class="row-bar" style="width:50.375807566844934%;"></div>
             <div class="row-count" style="left:50.375807566844934%;">11</div>
           </div>
@@ -938,7 +873,6 @@ p  { margin-bottom: 1rem; }
           <div class="row-score">1459</div>
           <div class="row-label">model as loss leader</div>
           <div class="row-track">
-            <div class="row-range" style="left:37.35711794117646%; width:21.922502352941216%;"></div>
             <div class="row-bar" style="width:46.76614058823528%;"></div>
             <div class="row-count" style="left:46.76614058823528%;">3</div>
           </div>
@@ -956,7 +890,6 @@ p  { margin-bottom: 1rem; }
           <div class="row-score">1453</div>
           <div class="row-label">internal labor then external playbook <span class="row-tag">singleton</span></div>
           <div class="row-track">
-            <div class="row-range" style="left:45.12057441176473%; width:0.0%;"></div>
             <div class="row-bar" style="width:45.12057441176473%;"></div>
             <div class="row-count" style="left:45.12057441176473%;">1</div>
           </div>
@@ -974,7 +907,6 @@ p  { margin-bottom: 1rem; }
           <div class="row-score">1453</div>
           <div class="row-label">premise reversed acceleration window <span class="row-tag">singleton</span></div>
           <div class="row-track">
-            <div class="row-range" style="left:44.88794823529414%; width:0.0%;"></div>
             <div class="row-bar" style="width:44.88794823529414%;"></div>
             <div class="row-count" style="left:44.88794823529414%;">1</div>
           </div>
@@ -992,7 +924,6 @@ p  { margin-bottom: 1rem; }
           <div class="row-score">1431</div>
           <div class="row-label">slowdown enables amortization</div>
           <div class="row-track">
-            <div class="row-range" style="left:7.720751470588258%; width:80.41275499999998%;"></div>
             <div class="row-bar" style="width:38.65633147058822%;"></div>
             <div class="row-count" style="left:38.65633147058822%;">8</div>
           </div>
@@ -1010,7 +941,6 @@ p  { margin-bottom: 1rem; }
           <div class="row-score">1427</div>
           <div class="row-label">model factory distillation</div>
           <div class="row-track">
-            <div class="row-range" style="left:14.12724235294116%; width:51.7691594117647%;"></div>
             <div class="row-bar" style="width:37.43090823529415%;"></div>
             <div class="row-count" style="left:37.43090823529415%;">3</div>
           </div>
@@ -1028,7 +958,6 @@ p  { margin-bottom: 1rem; }
           <div class="row-score">1426</div>
           <div class="row-label">brand network amortization <span class="row-tag">singleton</span></div>
           <div class="row-track">
-            <div class="row-range" style="left:37.049515294117676%; width:0.0%;"></div>
             <div class="row-bar" style="width:37.049515294117676%;"></div>
             <div class="row-count" style="left:37.049515294117676%;">1</div>
           </div>
@@ -1046,7 +975,6 @@ p  { margin-bottom: 1rem; }
           <div class="row-score">1418</div>
           <div class="row-label">specialization vertical models</div>
           <div class="row-track">
-            <div class="row-range" style="left:17.784836764705876%; width:33.899420294117675%;"></div>
             <div class="row-bar" style="width:34.73454691176471%;"></div>
             <div class="row-count" style="left:34.73454691176471%;">2</div>
           </div>
@@ -1064,7 +992,6 @@ p  { margin-bottom: 1rem; }
           <div class="row-score">1390</div>
           <div class="row-label">scarce capacity allocation <span class="row-tag">singleton</span></div>
           <div class="row-track">
-            <div class="row-range" style="left:26.367437352941163%; width:0.0%;"></div>
             <div class="row-bar" style="width:26.367437352941163%;"></div>
             <div class="row-count" style="left:26.367437352941163%;">1</div>
           </div>
@@ -1082,7 +1009,6 @@ p  { margin-bottom: 1rem; }
           <div class="row-score">1350</div>
           <div class="row-label">consolidation oligopoly utility</div>
           <div class="row-track">
-            <div class="row-range" style="left:11.861325294117666%; width:6.712493529411777%;"></div>
             <div class="row-bar" style="width:14.711510833333316%;"></div>
             <div class="row-count" style="left:14.711510833333316%;">6</div>
           </div>
@@ -1100,7 +1026,6 @@ p  { margin-bottom: 1rem; }
           <div class="row-score">1345</div>
           <div class="row-label">pharma rolling rd portfolio <span class="row-tag">singleton</span></div>
           <div class="row-track">
-            <div class="row-range" style="left:13.184651470588266%; width:0.0%;"></div>
             <div class="row-bar" style="width:13.184651470588266%;"></div>
             <div class="row-count" style="left:13.184651470588266%;">1</div>
           </div>
@@ -1118,7 +1043,6 @@ p  { margin-bottom: 1rem; }
           <div class="row-score">1325</div>
           <div class="row-label">consortia shared public good <span class="row-tag">singleton</span></div>
           <div class="row-track">
-            <div class="row-range" style="left:7.496280294117643%; width:0.0%;"></div>
             <div class="row-bar" style="width:7.496280294117643%;"></div>
             <div class="row-count" style="left:7.496280294117643%;">1</div>
           </div>
@@ -1150,7 +1074,6 @@ p  { margin-bottom: 1rem; }
           <div class="row-score">1614</div>
           <div class="row-label">compute governance verification stack</div>
           <div class="row-track">
-            <div class="row-range" style="left:65.25631294117649%; width:46.48118058823529%;"></div>
             <div class="row-bar" style="width:92.42957989304814%;"></div>
             <div class="row-count" style="left:92.42957989304814%;">11</div>
           </div>
@@ -1168,7 +1091,6 @@ p  { margin-bottom: 1rem; }
           <div class="row-score">1611</div>
           <div class="row-label">auditor compute access trust <span class="row-tag">singleton</span></div>
           <div class="row-track">
-            <div class="row-range" style="left:91.43745970588236%; width:0.0%;"></div>
             <div class="row-bar" style="width:91.43745970588236%;"></div>
             <div class="row-count" style="left:91.43745970588236%;">1</div>
           </div>
@@ -1186,7 +1108,6 @@ p  { margin-bottom: 1rem; }
           <div class="row-score">1581</div>
           <div class="row-label">audit eval regime</div>
           <div class="row-track">
-            <div class="row-range" style="left:49.00142264705885%; width:64.48742588235291%;"></div>
             <div class="row-bar" style="width:82.76876952941178%;"></div>
             <div class="row-count" style="left:82.76876952941178%;">10</div>
           </div>
@@ -1204,7 +1125,6 @@ p  { margin-bottom: 1rem; }
           <div class="row-score">1579</div>
           <div class="row-label">procurement market for safety</div>
           <div class="row-track">
-            <div class="row-range" style="left:61.076244705882345%; width:35.17753588235297%;"></div>
             <div class="row-bar" style="width:82.1357762184874%;"></div>
             <div class="row-count" style="left:82.1357762184874%;">7</div>
           </div>
@@ -1222,7 +1142,6 @@ p  { margin-bottom: 1rem; }
           <div class="row-score">1578</div>
           <div class="row-label">standards release infrastructure</div>
           <div class="row-track">
-            <div class="row-range" style="left:56.2459788235294%; width:40.340075882352934%;"></div>
             <div class="row-bar" style="width:81.72574519607839%;"></div>
             <div class="row-count" style="left:81.72574519607839%;">3</div>
           </div>
@@ -1240,7 +1159,6 @@ p  { margin-bottom: 1rem; }
           <div class="row-score">1576</div>
           <div class="row-label">insurance liability regime</div>
           <div class="row-track">
-            <div class="row-range" style="left:54.586840588235304%; width:52.616567058823534%;"></div>
             <div class="row-bar" style="width:81.09433906862752%;"></div>
             <div class="row-count" style="left:81.09433906862752%;">6</div>
           </div>
@@ -1258,7 +1176,6 @@ p  { margin-bottom: 1rem; }
           <div class="row-score">1555</div>
           <div class="row-label">buy and retire pause</div>
           <div class="row-track">
-            <div class="row-range" style="left:60.402640294117674%; width:26.59534588235293%;"></div>
             <div class="row-bar" style="width:74.98365948529414%;"></div>
             <div class="row-count" style="left:74.98365948529414%;">4</div>
           </div>
@@ -1276,7 +1193,6 @@ p  { margin-bottom: 1rem; }
           <div class="row-score">1544</div>
           <div class="row-label">secure by default deployment</div>
           <div class="row-track">
-            <div class="row-range" style="left:62.556658235294115%; width:18.36402529411763%;"></div>
             <div class="row-bar" style="width:71.73867088235298%;"></div>
             <div class="row-count" style="left:71.73867088235298%;">2</div>
           </div>
@@ -1294,7 +1210,6 @@ p  { margin-bottom: 1rem; }
           <div class="row-score">1538</div>
           <div class="row-label">weights security proliferation prevention <span class="row-tag">singleton</span></div>
           <div class="row-track">
-            <div class="row-range" style="left:69.88814529411765%; width:0.0%;"></div>
             <div class="row-bar" style="width:69.88814529411765%;"></div>
             <div class="row-count" style="left:69.88814529411765%;">1</div>
           </div>
@@ -1312,7 +1227,6 @@ p  { margin-bottom: 1rem; }
           <div class="row-score">1485</div>
           <div class="row-label">civil defense resilience</div>
           <div class="row-track">
-            <div class="row-range" style="left:5.5608602941176475%; width:88.95898529411765%;"></div>
             <div class="row-bar" style="width:54.35143453431378%;"></div>
             <div class="row-count" style="left:54.35143453431378%;">12</div>
           </div>
@@ -1330,7 +1244,6 @@ p  { margin-bottom: 1rem; }
           <div class="row-score">1461</div>
           <div class="row-label">open auditing transparency</div>
           <div class="row-track">
-            <div class="row-range" style="left:40.59476029411766%; width:13.606384705882341%;"></div>
             <div class="row-bar" style="width:47.39795264705883%;"></div>
             <div class="row-count" style="left:47.39795264705883%;">2</div>
           </div>
@@ -1348,7 +1261,6 @@ p  { margin-bottom: 1rem; }
           <div class="row-score">1442</div>
           <div class="row-label">state capacity talent pipeline</div>
           <div class="row-track">
-            <div class="row-range" style="left:9.264345882352913%; width:52.74418176470589%;"></div>
             <div class="row-bar" style="width:41.67714598039217%;"></div>
             <div class="row-count" style="left:41.67714598039217%;">9</div>
           </div>
@@ -1366,7 +1278,6 @@ p  { margin-bottom: 1rem; }
           <div class="row-score">1430</div>
           <div class="row-label">infrastructure for governance</div>
           <div class="row-track">
-            <div class="row-range" style="left:9.375949705882329%; width:57.883024999999996%;"></div>
             <div class="row-bar" style="width:38.31746220588229%;"></div>
             <div class="row-count" style="left:38.31746220588229%;">2</div>
           </div>
@@ -1384,7 +1295,6 @@ p  { margin-bottom: 1rem; }
           <div class="row-score">1428</div>
           <div class="row-label">treaty international coalition</div>
           <div class="row-track">
-            <div class="row-range" style="left:21.033571470588267%; width:50.63749499999999%;"></div>
             <div class="row-bar" style="width:37.5278353921569%;"></div>
             <div class="row-count" style="left:37.5278353921569%;">6</div>
           </div>
@@ -1402,7 +1312,6 @@ p  { margin-bottom: 1rem; }
           <div class="row-score">1426</div>
           <div class="row-label">charter governance</div>
           <div class="row-track">
-            <div class="row-range" style="left:31.30619764705885%; width:11.751569705882314%;"></div>
             <div class="row-bar" style="width:37.181982500000004%;"></div>
             <div class="row-count" style="left:37.181982500000004%;">2</div>
           </div>
@@ -1420,7 +1329,6 @@ p  { margin-bottom: 1rem; }
           <div class="row-score">1420</div>
           <div class="row-label">alignment manhattan project</div>
           <div class="row-track">
-            <div class="row-range" style="left:8.097738823529426%; width:60.87894323529413%;"></div>
             <div class="row-bar" style="width:35.204968006535985%;"></div>
             <div class="row-count" style="left:35.204968006535985%;">9</div>
           </div>
@@ -1438,7 +1346,6 @@ p  { margin-bottom: 1rem; }
           <div class="row-score">1413</div>
           <div class="row-label">ai dividend plus hard law lobbying <span class="row-tag">singleton</span></div>
           <div class="row-track">
-            <div class="row-range" style="left:33.32822441176471%; width:0.0%;"></div>
             <div class="row-bar" style="width:33.32822441176471%;"></div>
             <div class="row-count" style="left:33.32822441176471%;">1</div>
           </div>
@@ -1456,7 +1363,6 @@ p  { margin-bottom: 1rem; }
           <div class="row-score">1399</div>
           <div class="row-label">public option frontier lab</div>
           <div class="row-track">
-            <div class="row-range" style="left:7.772974411764688%; width:42.09658676470587%;"></div>
             <div class="row-bar" style="width:29.237834117647026%;"></div>
             <div class="row-count" style="left:29.237834117647026%;">8</div>
           </div>
@@ -1474,7 +1380,6 @@ p  { margin-bottom: 1rem; }
           <div class="row-score">1343</div>
           <div class="row-label">preserve optionality emergency brake</div>
           <div class="row-track">
-            <div class="row-range" style="left:12.114958235294099%; width:1.2909344117647112%;"></div>
             <div class="row-bar" style="width:12.547904901960747%;"></div>
             <div class="row-count" style="left:12.547904901960747%;">3</div>
           </div>
@@ -1492,7 +1397,6 @@ p  { margin-bottom: 1rem; }
           <div class="row-score">1322</div>
           <div class="row-label">broad institutional resilience <span class="row-tag">singleton</span></div>
           <div class="row-track">
-            <div class="row-range" style="left:6.5159205882352635%; width:0.0%;"></div>
             <div class="row-bar" style="width:6.5159205882352635%;"></div>
             <div class="row-count" style="left:6.5159205882352635%;">1</div>
           </div>
@@ -1524,7 +1428,6 @@ p  { margin-bottom: 1rem; }
           <div class="row-score">1591</div>
           <div class="row-label">digital public infrastructure substrate</div>
           <div class="row-track">
-            <div class="row-range" style="left:61.73997941176468%; width:43.85429176470592%;"></div>
             <div class="row-bar" style="width:85.54014042016802%;"></div>
             <div class="row-count" style="left:85.54014042016802%;">7</div>
           </div>
@@ -1542,7 +1445,6 @@ p  { margin-bottom: 1rem; }
           <div class="row-score">1566</div>
           <div class="row-label">energy datacenter wedge</div>
           <div class="row-track">
-            <div class="row-range" style="left:30.604631470588266%; width:79.21945029411759%;"></div>
             <div class="row-bar" style="width:78.23490358823526%;"></div>
             <div class="row-count" style="left:78.23490358823526%;">10</div>
           </div>
@@ -1560,7 +1462,6 @@ p  { margin-bottom: 1rem; }
           <div class="row-score">1554</div>
           <div class="row-label">domestic deployment diffusion</div>
           <div class="row-track">
-            <div class="row-range" style="left:42.38605529411764%; width:69.13988970588233%;"></div>
             <div class="row-bar" style="width:74.75718986425338%;"></div>
             <div class="row-count" style="left:74.75718986425338%;">13</div>
           </div>
@@ -1578,7 +1479,6 @@ p  { margin-bottom: 1rem; }
           <div class="row-score">1553</div>
           <div class="row-label">sovereign compute infrastructure</div>
           <div class="row-track">
-            <div class="row-range" style="left:50.265820882352926%; width:57.823965882352965%;"></div>
             <div class="row-bar" style="width:74.51272641176475%;"></div>
             <div class="row-count" style="left:74.51272641176475%;">5</div>
           </div>
@@ -1596,7 +1496,6 @@ p  { margin-bottom: 1rem; }
           <div class="row-score">1534</div>
           <div class="row-label">data moat national datasets</div>
           <div class="row-track">
-            <div class="row-range" style="left:47.8635988235294%; width:34.48020500000004%;"></div>
             <div class="row-bar" style="width:68.97011331932778%;"></div>
             <div class="row-count" style="left:68.97011331932778%;">7</div>
           </div>
@@ -1614,7 +1513,6 @@ p  { margin-bottom: 1rem; }
           <div class="row-score">1507</div>
           <div class="row-label">compute access bargaining bloc</div>
           <div class="row-track">
-            <div class="row-range" style="left:15.200892352941148%; width:88.11493852941179%;"></div>
             <div class="row-bar" style="width:60.84279150326799%;"></div>
             <div class="row-count" style="left:60.84279150326799%;">9</div>
           </div>
@@ -1632,7 +1530,6 @@ p  { margin-bottom: 1rem; }
           <div class="row-score">1494</div>
           <div class="row-label">ai assurance eval jurisdiction</div>
           <div class="row-track">
-            <div class="row-range" style="left:24.60378352941174%; width:63.11210411764711%;"></div>
             <div class="row-bar" style="width:57.18532517647057%;"></div>
             <div class="row-count" style="left:57.18532517647057%;">5</div>
           </div>
@@ -1650,7 +1547,6 @@ p  { margin-bottom: 1rem; }
           <div class="row-score">1480</div>
           <div class="row-label">vertical specialization export niches</div>
           <div class="row-track">
-            <div class="row-range" style="left:20.579743235294124%; width:63.43357588235295%;"></div>
             <div class="row-bar" style="width:52.85660035947711%;"></div>
             <div class="row-count" style="left:52.85660035947711%;">9</div>
           </div>
@@ -1668,7 +1564,6 @@ p  { margin-bottom: 1rem; }
           <div class="row-score">1477</div>
           <div class="row-label">state capacity institutional</div>
           <div class="row-track">
-            <div class="row-range" style="left:8.196791764705855%; width:89.69057941176477%;"></div>
             <div class="row-bar" style="width:52.1129182352941%;"></div>
             <div class="row-count" style="left:52.1129182352941%;">5</div>
           </div>
@@ -1686,7 +1581,6 @@ p  { margin-bottom: 1rem; }
           <div class="row-score">1473</div>
           <div class="row-label">mass deployment talent</div>
           <div class="row-track">
-            <div class="row-range" style="left:13.69919205882351%; width:67.29660235294118%;"></div>
             <div class="row-bar" style="width:51.01483404411764%;"></div>
             <div class="row-count" style="left:51.01483404411764%;">4</div>
           </div>
@@ -1704,7 +1598,6 @@ p  { margin-bottom: 1rem; }
           <div class="row-score">1472</div>
           <div class="row-label">regulatory leverage jurisdiction</div>
           <div class="row-track">
-            <div class="row-range" style="left:33.54420147058824%; width:43.331417058823526%;"></div>
             <div class="row-bar" style="width:50.72429270588239%;"></div>
             <div class="row-count" style="left:50.72429270588239%;">5</div>
           </div>
@@ -1722,7 +1615,6 @@ p  { margin-bottom: 1rem; }
           <div class="row-score">1471</div>
           <div class="row-label">national security defense</div>
           <div class="row-track">
-            <div class="row-range" style="left:19.431993823529396%; width:61.785354999999996%;"></div>
             <div class="row-bar" style="width:50.32467132352942%;"></div>
             <div class="row-count" style="left:50.32467132352942%;">2</div>
           </div>
@@ -1740,7 +1632,6 @@ p  { margin-bottom: 1rem; }
           <div class="row-score">1469</div>
           <div class="row-label">bloc geopolitical alignment</div>
           <div class="row-track">
-            <div class="row-range" style="left:25.433928235294097%; width:48.38088264705882%;"></div>
             <div class="row-bar" style="width:49.62436955882354%;"></div>
             <div class="row-count" style="left:49.62436955882354%;">2</div>
           </div>
@@ -1758,7 +1649,6 @@ p  { margin-bottom: 1rem; }
           <div class="row-score">1448</div>
           <div class="row-label">open standards portability</div>
           <div class="row-track">
-            <div class="row-range" style="left:26.04189117647058%; width:37.830750882352966%;"></div>
             <div class="row-bar" style="width:43.5106000980392%;"></div>
             <div class="row-count" style="left:43.5106000980392%;">3</div>
           </div>
@@ -1776,7 +1666,6 @@ p  { margin-bottom: 1rem; }
           <div class="row-score">1421</div>
           <div class="row-label">elite ai builder talent</div>
           <div class="row-track">
-            <div class="row-range" style="left:18.55944823529412%; width:32.366318823529404%;"></div>
             <div class="row-bar" style="width:35.600304852941186%;"></div>
             <div class="row-count" style="left:35.600304852941186%;">4</div>
           </div>
@@ -1794,7 +1683,6 @@ p  { margin-bottom: 1rem; }
           <div class="row-score">1420</div>
           <div class="row-label">ai adjacent manufacturing</div>
           <div class="row-track">
-            <div class="row-range" style="left:23.6290155882353%; width:23.5658005882353%;"></div>
             <div class="row-bar" style="width:35.411915882352915%;"></div>
             <div class="row-count" style="left:35.411915882352915%;">2</div>
           </div>
@@ -1812,7 +1700,6 @@ p  { margin-bottom: 1rem; }
           <div class="row-score">1378</div>
           <div class="row-label">regional ai hub <span class="row-tag">singleton</span></div>
           <div class="row-track">
-            <div class="row-range" style="left:22.86503735294118%; width:0.0%;"></div>
             <div class="row-bar" style="width:22.86503735294118%;"></div>
             <div class="row-count" style="left:22.86503735294118%;">1</div>
           </div>
@@ -1830,7 +1717,6 @@ p  { margin-bottom: 1rem; }
           <div class="row-score">1350</div>
           <div class="row-label">tax and redistribute ai rents</div>
           <div class="row-track">
-            <div class="row-range" style="left:6.850001470588254%; width:19.344861764705872%;"></div>
             <div class="row-bar" style="width:14.681117156862777%;"></div>
             <div class="row-count" style="left:14.681117156862777%;">3</div>
           </div>
@@ -1848,7 +1734,6 @@ p  { margin-bottom: 1rem; }
           <div class="row-score">1345</div>
           <div class="row-label">food energy security resilience <span class="row-tag">singleton</span></div>
           <div class="row-track">
-            <div class="row-range" style="left:13.106000882352928%; width:0.0%;"></div>
             <div class="row-bar" style="width:13.106000882352928%;"></div>
             <div class="row-count" style="left:13.106000882352928%;">1</div>
           </div>
@@ -1866,7 +1751,6 @@ p  { margin-bottom: 1rem; }
           <div class="row-score">1326</div>
           <div class="row-label">macro fundamentals <span class="row-tag">singleton</span></div>
           <div class="row-track">
-            <div class="row-range" style="left:7.657462941176485%; width:0.0%;"></div>
             <div class="row-bar" style="width:7.657462941176485%;"></div>
             <div class="row-count" style="left:7.657462941176485%;">1</div>
           </div>
@@ -1884,7 +1768,6 @@ p  { margin-bottom: 1rem; }
           <div class="row-score">1326</div>
           <div class="row-label">social insurance labor resilience</div>
           <div class="row-track">
-            <div class="row-range" style="left:6.058910294117635%; width:3.1138797058823746%;"></div>
             <div class="row-bar" style="width:7.615850147058822%;"></div>
             <div class="row-count" style="left:7.615850147058822%;">2</div>
           </div>
