@@ -1,0 +1,1974 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LLMs find the right factors but miss the frame</title>
+<style>
+* { box-sizing: border-box; }
+:root {
+  color-scheme: light;
+  --bg:     #fbfaf7;
+  --text:   #1e1f1c;
+  --muted:  #62645f;
+  --line:   #dedbd2;
+  --accent: #315f5a;
+  --bar:    #1e1f1c;
+  --range:  #b9b6ab;
+  --hover:  #f4f1e8;
+}
+html, body { margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.36;
+}
+a {
+  color: var(--text);
+  text-decoration-color: var(--accent);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+a:hover { color: var(--accent); }
+
+h1, h2, p { margin-top: 0; }
+h1, h2 { line-height: 1.1; font-weight: 600; }
+h1 { font-size: 1.4rem; margin-bottom: 0.3rem; letter-spacing: -0.005em; }
+h2 { font-size: 1.08rem; margin-bottom: 0; }
+p  { margin-bottom: 1rem; }
+
+.subtitle {
+  color: var(--muted);
+  font-size: 1rem;
+  font-weight: 400;
+  margin-bottom: 0.4rem;
+  line-height: 1.3;
+}
+.byline {
+  color: var(--muted);
+  font-size: 0.78rem;
+  margin-bottom: 1.8rem;
+  font-variant-numeric: tabular-nums;
+}
+
+#content {
+  margin: 0 auto;
+  max-width: 980px;
+  padding: 28px 26px 56px;
+}
+
+/* INTRO */
+#intro {
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+.overview p {
+  color: var(--text);
+  font-size: 0.96rem;
+  line-height: 1.55;
+  margin-bottom: 0.95rem;
+  max-width: 720px;
+}
+.overview p:last-child { margin-bottom: 0; }
+.overview em { font-style: italic; }
+
+/* RESPONSE ESSAY (GPT-5.5 Pro Q1 answer) */
+.response-essay {
+  margin-top: 4px;
+}
+.response-essay p {
+  color: var(--text);
+  font-size: 0.96rem;
+  line-height: 1.55;
+  margin-bottom: 0.95rem;
+  max-width: 720px;
+}
+.response-essay p:last-child { margin-bottom: 0; }
+.methodology {
+  margin-top: 18px;
+}
+.methodology p {
+  color: var(--muted);
+  font-size: 0.86rem;
+  line-height: 1.5;
+  margin-bottom: 0.7rem;
+  max-width: 720px;
+}
+.methodology p:last-child { margin-bottom: 0; }
+.methodology p strong { color: var(--text); font-weight: 600; }
+
+/* SECTION DIVIDER between essay and data */
+.section-heading {
+  font-size: 1.18rem;
+  font-weight: 600;
+  line-height: 1.2;
+  margin: 56px 0 16px;
+  padding-top: 36px;
+  border-top: 1px solid var(--line);
+  scroll-margin-top: 16px;
+}
+.section-heading a {
+  color: var(--text);
+  text-decoration: none;
+}
+.section-heading a:hover {
+  color: var(--accent);
+}
+
+.toc {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 18px;
+  margin: 0 0 18px;
+  font-size: 0.86rem;
+}
+.toc a { color: var(--muted); text-decoration: none; }
+.toc a:hover { color: var(--accent); text-decoration: underline; text-decoration-color: var(--accent); }
+
+/* QUESTION SECTION */
+.question {
+  border-bottom: 1px solid var(--line);
+  padding: 20px 0 26px;
+  scroll-margin-top: 16px;
+}
+.question:last-of-type { border-bottom: 0; }
+.question-heading {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+.question h2 { display: inline; }
+.question h2 .qnum { color: var(--muted); font-weight: 600; margin-right: 2px; }
+.qstats {
+  color: var(--muted);
+  font-size: 0.76rem;
+  text-transform: lowercase;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.question-text {
+  border-left: 2px solid var(--line);
+  color: var(--muted);
+  margin: 0 0 18px;
+  padding: 0 0 0 1rem;
+  max-width: 760px;
+}
+
+/* CHART */
+.chart {
+  position: relative;
+  margin-top: 4px;
+}
+.chart-grid {
+  position: absolute;
+  top: 0;
+  left: calc(48px + 270px);
+  right: 0;
+  bottom: 26px;
+  pointer-events: none;
+}
+.grid-line {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--line);
+  opacity: 0.55;
+}
+.chart-rows { display: flex; flex-direction: column; }
+
+.row {
+  display: grid;
+  grid-template-columns: 48px 270px minmax(0, 1fr);
+  align-items: center;
+  height: 26px;
+  position: relative;
+  border-top: 1px solid var(--line);
+  cursor: default;
+  transition: background 0.1s;
+  scroll-margin-top: 80px;
+}
+.row:hover { background: var(--hover); }
+.row:hover .row-bar    { background: var(--accent); }
+.row:hover .row-label  { color: var(--accent); }
+.row:hover .row-score  { color: var(--text); }
+.row:target { background: var(--hover); }
+.row:target .row-bar   { background: var(--accent); }
+.row:target .row-label { color: var(--accent); }
+.row:target .row-score { color: var(--text); }
+
+.row-score {
+  font-size: 0.78rem;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  text-align: left;
+  padding-right: 8px;
+  transition: color 0.1s;
+}
+.row-label {
+  font-size: 0.92rem;
+  color: var(--text);
+  padding-right: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color 0.1s;
+}
+.row.singleton .row-label { color: var(--muted); }
+.row-tag {
+  font-size: 0.72rem;
+  color: var(--muted);
+  text-transform: lowercase;
+  margin-left: 6px;
+  font-style: italic;
+}
+
+.row-track {
+  position: relative;
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+.row-range {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 1px;
+  background: var(--range);
+}
+.row-range::before, .row-range::after {
+  content: "";
+  position: absolute;
+  top: -2px;
+  width: 1px;
+  height: 5px;
+  background: var(--range);
+}
+.row-range::before { left: 0; }
+.row-range::after  { right: 0; }
+
+.row-bar {
+  height: 10px;
+  background: var(--bar);
+  z-index: 1;
+  transition: background 0.1s;
+}
+.row-count {
+  position: absolute;
+  top: 50%;
+  transform: translate(7px, -50%);
+  font-size: 0.78rem;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* X AXIS */
+.chart-axis {
+  position: relative;
+  height: 26px;
+  margin-top: 0;
+  margin-left: calc(48px + 270px);
+  border-top: 1px solid var(--text);
+}
+.xtick {
+  position: absolute;
+  top: 0;
+  width: 1px;
+  height: 4px;
+  background: var(--text);
+}
+.xtick span {
+  position: absolute;
+  top: 7px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.72rem;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* TOOLTIP */
+#tooltip {
+  position: fixed;
+  z-index: 100;
+  max-width: 480px;
+  background: var(--bg);
+  color: var(--text);
+  padding: 13px 16px;
+  border: 1px solid var(--line);
+  box-shadow: 0 8px 24px rgba(30, 31, 28, 0.07);
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(2px);
+  transition: opacity 0.12s, transform 0.12s;
+  font-size: 13px;
+  line-height: 1.42;
+}
+#tooltip.visible { opacity: 1; transform: translateY(0); }
+#tooltip .tt-label {
+  font-size: 0.76rem;
+  color: var(--muted);
+  margin-bottom: 6px;
+  text-transform: lowercase;
+  font-variant-numeric: tabular-nums;
+}
+#tooltip .tt-desc {
+  font-size: 0.92rem;
+  line-height: 1.45;
+  margin-bottom: 10px;
+  color: var(--text);
+}
+#tooltip .tt-stats {
+  font-size: 0.76rem;
+  color: var(--muted);
+  border-top: 1px solid var(--line);
+  padding-top: 8px;
+  margin-bottom: 10px;
+  font-variant-numeric: tabular-nums;
+  display: flex;
+  gap: 14px;
+}
+#tooltip .tt-stats span strong { color: var(--text); font-weight: 600; margin-left: 3px; }
+#tooltip .tt-top-label {
+  font-size: 0.72rem;
+  color: var(--muted);
+  margin-bottom: 3px;
+  text-transform: lowercase;
+}
+#tooltip .tt-top-text {
+  font-size: 0.86rem;
+  line-height: 1.45;
+  color: var(--muted);
+}
+
+@media (max-width: 820px) {
+  #content { padding: 20px 16px 36px; }
+  .chart-grid { left: calc(40px + 150px); }
+  .row { grid-template-columns: 40px 150px minmax(0, 1fr); height: 28px; }
+  .row-label { font-size: 0.82rem; }
+  .chart-axis { margin-left: calc(40px + 150px); }
+}
+</style>
+</head>
+<body>
+<div id="content">
+
+<header id="intro">
+  <h1>LLMs find the right factors but miss the frame</h1>
+  <p class="subtitle">400 answers for the Dwarkesh Blog Prize</p>
+  <p class="byline">Ethan Fast · May 10, 2026</p>
+
+  <div class="overview">
+    <p>
+      Dwarkesh recently launched a <a href="https://www.dwarkesh.com/p/blog-prize">Blog Prize</a> for four big questions about AI. He mentioned that LLM responses to these questions fall into the failure mode of giving &ldquo;5 plausible answers but not have the context and taste to identify the crucial factor.&rdquo; That generally aligns with my own experience working with LLMs on similar kinds of questions, but I was curious to investigate this idea more rigorously. So I queried GPT-5.4 via API repeatedly for explanatory theses for each of the questions, then scored and aggregated the responses.
+    </p>
+    <p>
+      Having done so, I'd make my own critique of the LLMs somewhat differently: they are good at identifying the most crucial individual factors, but have difficulty coming up with higher-level frames that might explain several important downstream factors. For example, my view is that the first question is answered more-or-less by the fact that the kind of RL the field does to train LLMs (rejection sampling, GRPO, training on verified traces) is mechanically different from the long-horizon, sparse-reward kind assumed by the slowdown argument's framing and intuitions (e.g., what's been successful is more like supervised learning, less like TD learning). Most of the top factors identified by GPT-5.4 (e.g., <a href="#cluster-rl_progress_timelines-verifier_dense_signal">dense verification</a>, <a href="#cluster-rl_progress_timelines-inference_time_search">role of inference</a>, <a href="#cluster-rl_progress_timelines-task_decomposition">task decomposition</a>) are underlying mechanisms that illustrate this, but that framing itself is completely missing from GPT-5.4's set of responses.
+    </p>
+    <p>
+      To check if another pass at the information might help with this kind of synthesis, I gave GPT-5.5 Pro the scored and clustered data and asked it to answer the first question about the slowdown argument again. In my estimation, it did an okay job, but it still tried to unify everything under <em>verified traces</em>, which I think is a mistake. You can see the response <a href="#gpt55-response">here</a>.
+    </p>
+    <p>
+      I'll be curious to see how many of the top factors I identified here are present in the winning answers, and how they're framed.
+    </p>
+  </div>
+</header>
+
+<h2 id="theses" class="section-heading"><a href="#theses">LLM generated thesis statements</a></h2>
+
+<div class="methodology">
+  <p>
+    <strong>Methodology.</strong> The GPT-5.4 API was queried 10 times per question and asked to return 10 plausible thesis statements each time. The 100 thesis statements per question were then scored against each other in a pairwise Elo tournament, also run on GPT-5.4 via a few thousand independent API calls (one per matchup), then clustered by a human and Claude Opus 4.7. Each cluster was given a summary and is depicted below alongside the size of its sample and the mean Elo score of its members.
+  </p>
+  <p>
+    Bars show each cluster's <strong>mean Elo</strong>; the faint line behind the bar marks the min-to-max range within the cluster. Hover any row for the full cluster description and the top-ranked response.
+  </p>
+</div>
+
+<nav class="toc"><a href="#rl_progress_timelines">Q1. RL progress and timelines</a>
+<a href="#foundation_model_profit">Q2. Foundation model profitability</a>
+<a href="#ai_foundation_deployment">Q3. OpenAI Foundation: how to deploy $180B</a>
+<a href="#countries_outside_ai_chain">Q4. Countries outside the AI production chain</a></nav>
+
+
+    <section class="question" id="rl_progress_timelines">
+      <div class="question-heading">
+        <h2><span class="qnum">Q1.</span> RL progress and timelines</h2>
+        <span class="qstats">19 clusters · 100 responses</span>
+      </div>
+      <blockquote class="question-text">A couple years ago, there was this idea that AI progress might slow down as we make further progress into the RL regime. 1. Because as horizon lengths increase, the AI needs to do many days&#x27; worth of work before we can even see if it did it right, so if we&#x27;re still in a naive policy gradient world, the reward signal / FLOP goes down, and 2. We&#x27;d crossed through many OOMs of RL compute from GPT 4 to o1 to o3, and it would not be feasible to replicate that many OOMs increase in compute immediately again. But AI progress seems to have been fast nonetheless - even potentially speeding up if rumors about Spud or Mythos are to be believed. What gives? What did that previous intuition pump that motivated longer timelines miss? Feel free to deny premise of question.</blockquote>
+      
+    <div class="chart">
+      <div class="chart-grid"><div class="grid-line" style="left:0.0%;"></div><div class="grid-line" style="left:29.411764705882355%;"></div><div class="grid-line" style="left:58.82352941176471%;"></div><div class="grid-line" style="left:88.23529411764706%;"></div></div>
+      <div class="chart-rows">
+        <div class="row"
+             id="cluster-rl_progress_timelines-verifier_dense_signal"
+             data-cluster="verifier_dense_signal"
+             data-description="Automatic verifiers/checkers/critics manufacture cheap dense reward, replacing sparse end-of-horizon signals."
+             data-size="17"
+             data-mean="1599.4"
+             data-min="1443.5"
+             data-max="1666.4"
+             data-toprank="5"
+             data-toptext="RL didn’t need exponential compute increases because labs learned to manufacture near-free reward: unit tests, formal checkers, self-generated rubrics, and distillation from verifiers created a high-quality supervision stream at internet scale.">
+          <div class="row-score">1599</div>
+          <div class="row-label">verifier dense signal</div>
+          <div class="row-track">
+            <div class="row-range" style="left:42.20316470588233%; width:65.55601088235294%;"></div>
+            <div class="row-bar" style="width:88.07131678200696%;"></div>
+            <div class="row-count" style="left:88.07131678200696%;">17</div>
+          </div>
+        </div>
+        <div class="row"
+             id="cluster-rl_progress_timelines-inference_time_search"
+             data-cluster="inference_time_search"
+             data-description="The real scaling axis is test-time compute (best-of-N, tree search, self-consistency, deliberation), not RL training compute."
+             data-size="9"
+             data-mean="1572.6"
+             data-min="1396.7"
+             data-max="1674.1"
+             data-toprank="3"
+             data-toptext="The key break was shifting from naive on-policy policy gradients to search-and-verify (tree search, beam search, best-of-N, rejection sampling) where compute buys higher-quality data immediately, making progress scale with inference-time exploration rather than delayed environment feedback.">
+          <div class="row-score">1573</div>
+          <div class="row-label">inference time search</div>
+          <div class="row-track">
+            <div class="row-range" style="left:28.45515882352943%; width:81.56617823529412%;"></div>
+            <div class="row-bar" style="width:80.17929326797383%;"></div>
+            <div class="row-count" style="left:80.17929326797383%;">9</div>
+          </div>
+        </div>
+        <div class="row"
+             id="cluster-rl_progress_timelines-search_distill_flywheel"
+             data-cluster="search_distill_flywheel"
+             data-description="Expensive search/RL produces high-quality trajectories that get distilled offline into cheaper models — a flywheel that amortizes RL compute."
+             data-size="9"
+             data-mean="1561.5"
+             data-min="1436.0"
+             data-max="1678.4"
+             data-toprank="1"
+             data-toptext="The perceived compute wall was sidestepped by a two-stage pipeline where a small amount of very expensive RL/search produces high-quality trajectories and then distillation transfers them into a cheap-to-run model, letting progress compound without scaling RL compute linearly.">
+          <div class="row-score">1561</div>
+          <div class="row-label">search distill flywheel</div>
+          <div class="row-track">
+            <div class="row-range" style="left:39.9932994117647%; width:71.30641882352941%;"></div>
+            <div class="row-bar" style="width:76.90568160130718%;"></div>
+            <div class="row-count" style="left:76.90568160130718%;">9</div>
+          </div>
+        </div>
+        <div class="row"
+             id="cluster-rl_progress_timelines-off_policy_replay"
+             data-cluster="off_policy_replay"
+             data-description="Frontier RL shifted from on-policy gradients to off-policy/offline learning over replay buffers of logged trajectories."
+             data-size="4"
+             data-mean="1551.5"
+             data-min="1458.9"
+             data-max="1674.4"
+             data-toprank="2"
+             data-toptext="The slowdown intuition failed because RL for frontier models shifted from high-variance, long-horizon policy-gradient learning to offline/on-policy distillation over huge replay buffers plus verifier-style rewards, turning sparse delayed outcomes into dense token-level training signals that scale like supervised learning.">
+          <div class="row-score">1551</div>
+          <div class="row-label">off policy replay</div>
+          <div class="row-track">
+            <div class="row-range" style="left:46.73041970588235%; width:63.38501764705885%;"></div>
+            <div class="row-bar" style="width:73.95989095588233%;"></div>
+            <div class="row-count" style="left:73.95989095588233%;">4</div>
+          </div>
+        </div>
+        <div class="row"
+             id="cluster-rl_progress_timelines-task_decomposition"
+             data-cluster="task_decomposition"
+             data-description="Long horizons aren&#x27;t really long — agentic scaffolding/planning/tool-use breaks tasks into many short subtasks, collapsing the effective horizon."
+             data-size="14"
+             data-mean="1531.7"
+             data-min="1382.9"
+             data-max="1670.5"
+             data-toprank="4"
+             data-toptext="Progress stayed fast because the key bottleneck was never horizon length but evaluation and credit assignment, and labs solved it by decomposing tasks into tool-using plans with short, checkable subgoals (unit tests, proofs, self-consistency), effectively converting long-horizon RL into many short-horizon supervised problems.">
+          <div class="row-score">1532</div>
+          <div class="row-label">task decomposition</div>
+          <div class="row-track">
+            <div class="row-range" style="left:24.377186764705876%; width:84.6057241176471%;"></div>
+            <div class="row-bar" style="width:68.16146245798322%;"></div>
+            <div class="row-count" style="left:68.16146245798322%;">14</div>
+          </div>
+        </div>
+        <div class="row"
+             id="cluster-rl_progress_timelines-synthetic_env_selfplay"
+             data-cluster="synthetic_env_selfplay"
+             data-description="Digital environments and self-play (code, math, simulators) supply endless cheap training data with instant feedback."
+             data-size="10"
+             data-mean="1503.9"
+             data-min="1397.1"
+             data-max="1592.1"
+             data-toprank="24"
+             data-toptext="The timelines intuition assumed rewards must come from the real world, but the decisive move was building high-quality synthetic training environments (code, math, formal verification, simulators, and self-play dialogue) where feedback is immediate, cheap, and perfectly instrumented, nullifying the horizon-length penalty.">
+          <div class="row-score">1504</div>
+          <div class="row-label">synthetic env selfplay</div>
+          <div class="row-track">
+            <div class="row-range" style="left:28.57324588235295%; width:57.3495855882353%;"></div>
+            <div class="row-bar" style="width:59.96603697058824%;"></div>
+            <div class="row-count" style="left:59.96603697058824%;">10</div>
+          </div>
+        </div>
+        <div class="row"
+             id="cluster-rl_progress_timelines-data_quality_over_flops"
+             data-cluster="data_quality_over_flops"
+             data-description="The bottleneck is high-quality preference/reasoning data, not raw RL FLOPs; labs unlocked new data sources/pipelines."
+             data-size="5"
+             data-mean="1463.0"
+             data-min="1389.2"
+             data-max="1561.8"
+             data-toprank="35"
+             data-toptext="The real constraint was never horizon length but evaluation and data quality, and once labs built industrial pipelines for generating, labeling, and automatically validating hard reasoning examples, scaling that pipeline—not RL compute—drove the apparent acceleration.">
+          <div class="row-score">1463</div>
+          <div class="row-label">data quality over flops</div>
+          <div class="row-track">
+            <div class="row-range" style="left:26.23959588235293%; width:50.768460588235286%;"></div>
+            <div class="row-bar" style="width:47.942124058823566%;"></div>
+            <div class="row-count" style="left:47.942124058823566%;">5</div>
+          </div>
+        </div>
+        <div class="row singleton"
+             id="cluster-rl_progress_timelines-singleton_internal_cot_shaping"
+             data-cluster="singleton_internal_cot_shaping"
+             data-description="Internal chain-of-thought / self-evaluation traces act as latent shaping rewards, making external sparse rewards unnecessary."
+             data-size="1"
+             data-mean="1453.9"
+             data-min="1453.9"
+             data-max="1453.9"
+             data-toprank="60"
+             data-toptext="The earlier argument missed that long-horizon tasks are learnable when you train models to generate intermediate reasoning traces and self-evaluations, because these latent scaffolds create internal shaping rewards that make external sparse rewards unnecessary for many capabilities.">
+          <div class="row-score">1454</div>
+          <div class="row-label">internal cot shaping <span class="row-tag">singleton</span></div>
+          <div class="row-track">
+            <div class="row-range" style="left:45.27357029411767%; width:0.0%;"></div>
+            <div class="row-bar" style="width:45.27357029411767%;"></div>
+            <div class="row-count" style="left:45.27357029411767%;">1</div>
+          </div>
+        </div>
+        <div class="row"
+             id="cluster-rl_progress_timelines-capabilities_compound"
+             data-cluster="capabilities_compound"
+             data-description="As base models get smarter, exploration improves and reward-per-FLOP rises — progress accelerates rather than stalls."
+             data-size="2"
+             data-mean="1442.2"
+             data-min="1428.9"
+             data-max="1455.6"
+             data-toprank="59"
+             data-toptext="Long-horizon RL slowed less than expected because capabilities compound: once models become competent enough to propose good actions, the effective horizon shrinks through self-correction and checkpointing, so gradients stay informative even on tasks that span days.">
+          <div class="row-score">1442</div>
+          <div class="row-label">capabilities compound</div>
+          <div class="row-track">
+            <div class="row-range" style="left:37.91207058823529%; width:7.844411764705889%;"></div>
+            <div class="row-bar" style="width:41.8342764705882%;"></div>
+            <div class="row-count" style="left:41.8342764705882%;">2</div>
+          </div>
+        </div>
+        <div class="row"
+             id="cluster-rl_progress_timelines-parallelism_engineering"
+             data-cluster="parallelism_engineering"
+             data-description="Wall-clock is an engineering constraint, not a learning-theory one — parallel rollouts/async training amortize &quot;days of work.&quot;"
+             data-size="2"
+             data-mean="1427.1"
+             data-min="1414.3"
+             data-max="1440.0"
+             data-toprank="68"
+             data-toptext="The earlier intuition ignored that evaluation latency is an engineering constraint, not a learning-theory constraint, and can be amortized by parallelization, cached simulators, batched verification, and asynchronous training that keeps GPUs saturated even when tasks take days end-to-end.">
+          <div class="row-score">1427</div>
+          <div class="row-label">parallelism engineering</div>
+          <div class="row-track">
+            <div class="row-range" style="left:33.617893529411795%; width:7.550624117647047%;"></div>
+            <div class="row-bar" style="width:37.39320558823532%;"></div>
+            <div class="row-count" style="left:37.39320558823532%;">2</div>
+          </div>
+        </div>
+        <div class="row"
+             id="cluster-rl_progress_timelines-pretraining_still_dominates"
+             data-cluster="pretraining_still_dominates"
+             data-description="Premise denial — we&#x27;re not really in the RL regime; pretraining + post-training is still the main driver and RL is a thin layer on top."
+             data-size="9"
+             data-mean="1410.6"
+             data-min="1342.2"
+             data-max="1548.4"
+             data-toprank="37"
+             data-toptext="What the earlier view missed is that RL fine-tuning is a thin layer atop a massively capable pretrained model, so small amounts of high-quality preference/process data can yield large behavioral gains without scaling RL compute proportionally to task horizon.">
+          <div class="row-score">1411</div>
+          <div class="row-label">pretraining still dominates</div>
+          <div class="row-track">
+            <div class="row-range" style="left:12.418751176470618%; width:60.64289852941175%;"></div>
+            <div class="row-bar" style="width:32.52256849673205%;"></div>
+            <div class="row-count" style="left:32.52256849673205%;">9</div>
+          </div>
+        </div>
+        <div class="row singleton"
+             id="cluster-rl_progress_timelines-singleton_world_model_planner"
+             data-cluster="singleton_world_model_planner"
+             data-description="Labs trained explicit world-models and planners whose gradients come from prediction losses, making planning capability scale like supervised learning."
+             data-size="1"
+             data-mean="1405.3"
+             data-min="1405.3"
+             data-max="1405.3"
+             data-toprank="75"
+             data-toptext="Progress continued because labs stopped doing naive policy gradient on final outcomes and instead trained explicit world-models and planners whose gradients come from prediction losses, making planning capability scale like supervised learning.">
+          <div class="row-score">1405</div>
+          <div class="row-label">world model planner <span class="row-tag">singleton</span></div>
+          <div class="row-track">
+            <div class="row-range" style="left:30.97763500000002%; width:0.0%;"></div>
+            <div class="row-bar" style="width:30.97763500000002%;"></div>
+            <div class="row-count" style="left:30.97763500000002%;">1</div>
+          </div>
+        </div>
+        <div class="row singleton"
+             id="cluster-rl_progress_timelines-singleton_critic_actor_reward_hacking"
+             data-cluster="singleton_critic_actor_reward_hacking"
+             data-description="The bottleneck moved from reward sparsity to reward hacking; separate critic models that patch actor behavior provide a stable signal that scales with model intelligence."
+             data-size="1"
+             data-mean="1400.6"
+             data-min="1400.6"
+             data-max="1400.6"
+             data-toprank="76"
+             data-toptext="The bottleneck moved from reward sparsity to reward hacking, and the solution—training models to propose actions while separate models critique and patch them—creates a stable learning signal that scales with model intelligence rather than episode length.">
+          <div class="row-score">1401</div>
+          <div class="row-label">critic actor reward hacking <span class="row-tag">singleton</span></div>
+          <div class="row-track">
+            <div class="row-range" style="left:29.601194999999986%; width:0.0%;"></div>
+            <div class="row-bar" style="width:29.601194999999986%;"></div>
+            <div class="row-count" style="left:29.601194999999986%;">1</div>
+          </div>
+        </div>
+        <div class="row singleton"
+             id="cluster-rl_progress_timelines-singleton_system_design_multiplicative"
+             data-cluster="singleton_system_design_multiplicative"
+             data-description="Combining agents, tools, memory, and retrieval creates multiplicative capability gains across components, even if each improves only marginally."
+             data-size="1"
+             data-mean="1397.8"
+             data-min="1397.8"
+             data-max="1397.8"
+             data-toprank="77"
+             data-toptext="Rumored accelerations (e.g., Spud/Mythos-style systems) are best explained by “RL as system design”: combining agents, tools, memory, and retrieval creates multiplicative gains even if each component improves only marginally, so progress can speed up without new OOMs of RL compute.">
+          <div class="row-score">1398</div>
+          <div class="row-label">system design multiplicative <span class="row-tag">singleton</span></div>
+          <div class="row-track">
+            <div class="row-range" style="left:28.77704794117649%; width:0.0%;"></div>
+            <div class="row-bar" style="width:28.77704794117649%;"></div>
+            <div class="row-count" style="left:28.77704794117649%;">1</div>
+          </div>
+        </div>
+        <div class="row"
+             id="cluster-rl_progress_timelines-algorithmic_efficiency"
+             data-cluster="algorithmic_efficiency"
+             data-description="Better algorithms (DPO/IPO, advantage estimation, KL control, credit assignment) give more capability per FLOP — ideas substitute for compute."
+             data-size="9"
+             data-mean="1386.7"
+             data-min="1358.0"
+             data-max="1446.9"
+             data-toprank="62"
+             data-toptext="The earlier argument assumed naive policy gradients, but the field quietly moved to more sample-efficient objectives (preference modeling, direct policy optimization variants, advantage-weighted regression) that extract far more learning per trajectory.">
+          <div class="row-score">1387</div>
+          <div class="row-label">algorithmic efficiency</div>
+          <div class="row-track">
+            <div class="row-range" style="left:17.059909705882387%; width:26.1495985294117%;"></div>
+            <div class="row-bar" style="width:25.490287287581705%;"></div>
+            <div class="row-count" style="left:25.490287287581705%;">9</div>
+          </div>
+        </div>
+        <div class="row singleton"
+             id="cluster-rl_progress_timelines-singleton_rl_small_so_ooms_feasible"
+             data-cluster="singleton_rl_small_so_ooms_feasible"
+             data-description="RL fine-tuning is a small tail on top of gigantic pretraining, so even large relative increases in RL compute are tiny absolute additions and remain economically feasible."
+             data-size="1"
+             data-mean="1375.8"
+             data-min="1375.8"
+             data-max="1375.8"
+             data-toprank="89"
+             data-toptext="The compute-OOM argument missed that RL fine-tuning is a small tail on top of gigantic pretraining, so even large relative increases in RL compute are tiny absolute additions to total spend and remain economically feasible.">
+          <div class="row-score">1376</div>
+          <div class="row-label">rl small so ooms feasible <span class="row-tag">singleton</span></div>
+          <div class="row-track">
+            <div class="row-range" style="left:22.301165882352922%; width:0.0%;"></div>
+            <div class="row-bar" style="width:22.301165882352922%;"></div>
+            <div class="row-count" style="left:22.301165882352922%;">1</div>
+          </div>
+        </div>
+        <div class="row"
+             id="cluster-rl_progress_timelines-measurement_artifact"
+             data-cluster="measurement_artifact"
+             data-description="Premise denial — the apparent acceleration is benchmark/product-surface effects (eval contamination, scaffolding, productization), not real capability jumps."
+             data-size="3"
+             data-mean="1334.8"
+             data-min="1317.3"
+             data-max="1367.1"
+             data-toprank="91"
+             data-toptext="Apparent acceleration is mostly a measurement artifact: benchmarks are increasingly “training set adjacent” to RLHF/RLAIF objectives and to tool-augmented workflows, so gains reflect better alignment to eval formats more than raw general intelligence jumps.">
+          <div class="row-score">1335</div>
+          <div class="row-label">measurement artifact</div>
+          <div class="row-track">
+            <div class="row-range" style="left:5.086564411764732%; width:14.634302352941136%;"></div>
+            <div class="row-bar" style="width:10.221789999999976%;"></div>
+            <div class="row-count" style="left:10.221789999999976%;">3</div>
+          </div>
+        </div>
+        <div class="row singleton"
+             id="cluster-rl_progress_timelines-singleton_capability_threshold_pipeline_loop"
+             data-cluster="singleton_capability_threshold_pipeline_loop"
+             data-description="Crossing a capability threshold (models reliably write code, use tools, run experiments) creates a feedback loop where the model improves the training pipeline itself."
+             data-size="1"
+             data-mean="1327.4"
+             data-min="1327.4"
+             data-max="1327.4"
+             data-toprank="97"
+             data-toptext="Apparent acceleration is explained by crossing a capability threshold where models can reliably write and run code, use tools, and automate experiments, creating a positive feedback loop that improves both the training pipeline and the model faster than scaling laws alone predict.">
+          <div class="row-score">1327</div>
+          <div class="row-label">capability threshold pipeline loop <span class="row-tag">singleton</span></div>
+          <div class="row-track">
+            <div class="row-range" style="left:8.046313823529424%; width:0.0%;"></div>
+            <div class="row-bar" style="width:8.046313823529424%;"></div>
+            <div class="row-count" style="left:8.046313823529424%;">1</div>
+          </div>
+        </div>
+        <div class="row singleton"
+             id="cluster-rl_progress_timelines-singleton_better_problem_formulations"
+             data-cluster="singleton_better_problem_formulations"
+             data-description="Capability jumps can come from better problem formulations (prompts, datasets, evals, scaffolds) rather than deeper RL, so RL stagnation does not imply overall stagnation."
+             data-size="1"
+             data-mean="1319.4"
+             data-min="1319.4"
+             data-max="1319.4"
+             data-toprank="99"
+             data-toptext="The previous timelines intuition missed that capability jumps can come from better problem formulations (better prompts, better datasets, better evals, better scaffolds) rather than deeper RL, so stagnation in RL efficiency would not imply stagnation in overall progress.">
+          <div class="row-score">1319</div>
+          <div class="row-label">better problem formulations <span class="row-tag">singleton</span></div>
+          <div class="row-track">
+            <div class="row-range" style="left:5.691787352941178%; width:0.0%;"></div>
+            <div class="row-bar" style="width:5.691787352941178%;"></div>
+            <div class="row-count" style="left:5.691787352941178%;">1</div>
+          </div>
+        </div></div>
+      <div class="chart-axis"><div class="xtick" style="left:0.0%;"><span>1300</span></div><div class="xtick" style="left:29.411764705882355%;"><span>1400</span></div><div class="xtick" style="left:58.82352941176471%;"><span>1500</span></div><div class="xtick" style="left:88.23529411764706%;"><span>1600</span></div></div>
+    </div>
+    </section>
+
+    <section class="question" id="foundation_model_profit">
+      <div class="question-heading">
+        <h2><span class="qnum">Q2.</span> Foundation model profitability</h2>
+        <span class="qstats">20 clusters · 100 responses</span>
+      </div>
+      <blockquote class="question-text">What&#x27;s the most plausible story where foundation model companies actually start making money? If you consider each individual model as a company, then its profits may be able to pay back the training cost. But of course, if you don&#x27;t train a bigger, more expensive model immediately, then you stop making money after 3 months. So when does the profit start? Maybe at some point scaling will plateau, but if progress at the frontier has slowed down, then the combination of distillation and low switching costs (cloud margins result from high switching costs) makes it really easy for open source to catch up to the labs, eating into their margins. So how do the labs actually start making money?</blockquote>
+      
+    <div class="chart">
+      <div class="chart-grid"><div class="grid-line" style="left:0.0%;"></div><div class="grid-line" style="left:29.411764705882355%;"></div><div class="grid-line" style="left:58.82352941176471%;"></div><div class="grid-line" style="left:88.23529411764706%;"></div></div>
+      <div class="chart-rows">
+        <div class="row"
+             id="cluster-foundation_model_profit-production_tooling_moat"
+             data-cluster="production_tooling_moat"
+             data-description="Production-grade tooling around models — memory, auth, monitoring, governance, eval, rollback, incident response — creates the switching costs; the model is a replaceable component inside a sticky deployment platform."
+             data-size="5"
+             data-mean="1613.3"
+             data-min="1547.3"
+             data-max="1667.4"
+             data-toprank="2"
+             data-toptext="The profit inflection comes when labs sell persistent agentic subscriptions bundled with tooling (memory, auth, connectors, evals, sandboxes, and monitoring) so switching costs move from “model weights” to “productionized autonomy,” making the model itself only one replaceable component of a sticky product.">
+          <div class="row-score">1613</div>
+          <div class="row-label">production tooling moat</div>
+          <div class="row-track">
+            <div class="row-range" style="left:72.72492147058823%; width:35.32570029411765%;"></div>
+            <div class="row-bar" style="width:92.14352717647061%;"></div>
+            <div class="row-count" style="left:92.14352717647061%;">5</div>
+          </div>
+        </div>
+        <div class="row"
+             id="cluster-foundation_model_profit-workflow_outcome_pricing"
+             data-cluster="workflow_outcome_pricing"
+             data-description="Stop selling tokens and start selling outcomes — vertically integrate into specific high-value workflows (coding, support, finance, etc.) and charge per measured business outcome rather than per token, capturing a share of value created."
+             data-size="16"
+             data-mean="1592.4"
+             data-min="1453.0"
+             data-max="1673.6"
+             data-toprank="1"
+             data-toptext="Foundation model labs start making durable money when they vertically integrate into high-ROI workflows (customer support, sales ops, underwriting, coding, compliance) and charge per verified business outcome, because outcomes create switching costs via process redesign, data flywheels, and liability that raw API tokens cannot.">
+          <div class="row-score">1592</div>
+          <div class="row-label">workflow outcome pricing</div>
+          <div class="row-track">
+            <div class="row-range" style="left:45.00604411764705%; width:64.86461176470591%;"></div>
+            <div class="row-bar" style="width:85.98888134191176%;"></div>
+            <div class="row-count" style="left:85.98888134191176%;">16</div>
+          </div>
+        </div>
+        <div class="row"
+             id="cluster-foundation_model_profit-enterprise_private_contracts"
+             data-cluster="enterprise_private_contracts"
+             data-description="Long-term B2B enterprise contracts (licensed model derivatives, on-prem/VPC private models, SAP/Oracle-style deals) amortize training cost across multi-year commitments."
+             data-size="2"
+             data-mean="1563.6"
+             data-min="1521.8"
+             data-max="1605.3"
+             data-toprank="18"
+             data-toptext="Labs become profitable by licensing “model derivatives” to other firms—specialized, contractually constrained, and continuously maintained models with SLAs—turning the frontier lab into an upstream supplier whose customers fund training through long-term capacity contracts.">
+          <div class="row-score">1564</div>
+          <div class="row-label">enterprise private contracts</div>
+          <div class="row-track">
+            <div class="row-range" style="left:65.23271000000003%; width:24.56827970588232%;"></div>
+            <div class="row-bar" style="width:77.51684985294118%;"></div>
+            <div class="row-count" style="left:77.51684985294118%;">2</div>
+          </div>
+        </div>
+        <div class="row"
+             id="cluster-foundation_model_profit-regulatory_compliance_moat"
+             data-cluster="regulatory_compliance_moat"
+             data-description="Sell certified, audited, indemnified models into regulated/high-stakes industries (health, finance, legal, defense); compliance, liability transfer, and audit trails are the moat that open source cannot cheaply meet."
+             data-size="13"
+             data-mean="1556.7"
+             data-min="1378.2"
+             data-max="1638.2"
+             data-toprank="8"
+             data-toptext="Frontier labs start making durable money when they shift from selling tokens to selling audited outcomes in high-stakes workflows (finance, legal, drug dev, defense), bundling model, tooling, and liability so customers pay for risk transfer and integration rather than raw inference.">
+          <div class="row-score">1557</div>
+          <div class="row-label">regulatory compliance moat</div>
+          <div class="row-track">
+            <div class="row-range" style="left:23.012521470588233%; width:76.46158117647059%;"></div>
+            <div class="row-bar" style="width:75.49932674208148%;"></div>
+            <div class="row-count" style="left:75.49932674208148%;">13</div>
+          </div>
+        </div>
+        <div class="row"
+             id="cluster-foundation_model_profit-distribution_channel_ownership"
+             data-cluster="distribution_channel_ownership"
+             data-description="Own the distribution channel — OS, devtools, productivity suite, agent runtime, marketplace, identity/payments — so the model becomes a replaceable feature inside a sticky platform."
+             data-size="9"
+             data-mean="1532.6"
+             data-min="1457.7"
+             data-max="1663.8"
+             data-toprank="3"
+             data-toptext="Frontier model companies start making money by becoming distribution companies—owning the agent runtime, app marketplace, identity, payments, and workflow UI—so switching costs live in software and data schemas while the underlying model becomes a replaceable component they can source cheaply.">
+          <div class="row-score">1533</div>
+          <div class="row-label">distribution channel ownership</div>
+          <div class="row-track">
+            <div class="row-range" style="left:46.36886411764709%; width:60.62245647058823%;"></div>
+            <div class="row-bar" style="width:68.41834581699352%;"></div>
+            <div class="row-count" style="left:68.41834581699352%;">9</div>
+          </div>
+        </div>
+        <div class="row"
+             id="cluster-foundation_model_profit-government_defense_contracts"
+             data-cluster="government_defense_contracts"
+             data-description="Long-term government/defense procurement contracts (anchor customers, security clearances, sovereign deployment) provide stable annuities that finance continuous training."
+             data-size="3"
+             data-mean="1493.1"
+             data-min="1455.3"
+             data-max="1514.5"
+             data-toprank="47"
+             data-toptext="Foundation model companies start making money when governments and large incumbents treat advanced models as strategic infrastructure and sign long-term capacity contracts (like defense procurement), converting volatile pay-per-token revenue into stable annuities that finance continuous training.">
+          <div class="row-score">1493</div>
+          <div class="row-label">government defense contracts</div>
+          <div class="row-track">
+            <div class="row-range" style="left:45.67425352941173%; width:17.407431470588257%;"></div>
+            <div class="row-bar" style="width:56.801655588235334%;"></div>
+            <div class="row-count" style="left:56.801655588235334%;">3</div>
+          </div>
+        </div>
+        <div class="row"
+             id="cluster-foundation_model_profit-reliability_sla_premium"
+             data-cluster="reliability_sla_premium"
+             data-description="Once models cross a &#x27;good enough&#x27; threshold, reliability, latency, evals, and SLAs become the binding constraint and the source of rents — open source can match raw quality but not guaranteed performance."
+             data-size="2"
+             data-mean="1480.8"
+             data-min="1377.1"
+             data-max="1584.4"
+             data-toprank="25"
+             data-toptext="Open source won’t erase margins because the binding constraint is not weights but evaluation and reliability; labs that industrialize measurement (domain-specific benchmarks, continuous monitoring, red-teaming, SLAs) can charge for guaranteed performance where “close enough” models are unbuyable.">
+          <div class="row-score">1481</div>
+          <div class="row-label">reliability sla premium</div>
+          <div class="row-track">
+            <div class="row-range" style="left:22.68249558823527%; width:60.97001647058826%;"></div>
+            <div class="row-bar" style="width:53.16750382352941%;"></div>
+            <div class="row-count" style="left:53.16750382352941%;">2</div>
+          </div>
+        </div>
+        <div class="row"
+             id="cluster-foundation_model_profit-data_flywheel"
+             data-cluster="data_flywheel"
+             data-description="Proprietary post-training/interaction data flywheels (enterprise logs, tool-use traces, customer feedback) compound with usage and create performance moats that cannot be cloned by distillation alone."
+             data-size="11"
+             data-mean="1475.9"
+             data-min="1399.4"
+             data-max="1627.7"
+             data-toprank="12"
+             data-toptext="Profit starts when scaling shifts from bigger pretraining runs to proprietary post-training on scarce interaction data (real tool use, enterprise logs, robotics teleop), creating a data flywheel that open source cannot easily copy and turning the frontier into a defensible services-and-data business.">
+          <div class="row-score">1476</div>
+          <div class="row-label">data flywheel</div>
+          <div class="row-track">
+            <div class="row-range" style="left:29.22169647058822%; width:67.16366264705886%;"></div>
+            <div class="row-bar" style="width:51.72390216577543%;"></div>
+            <div class="row-count" style="left:51.72390216577543%;">11</div>
+          </div>
+        </div>
+        <div class="row"
+             id="cluster-foundation_model_profit-inference_cost_leadership"
+             data-cluster="inference_cost_leadership"
+             data-description="Own the inference stack end-to-end (custom silicon, datacenters, kernels, power contracts) for a structural cost-per-output advantage that survives weight commoditization."
+             data-size="11"
+             data-mean="1471.3"
+             data-min="1361.1"
+             data-max="1578.8"
+             data-toprank="27"
+             data-toptext="Labs become profitable by owning the inference stack end-to-end (custom silicon, networking, kernels, schedulers, caching, distillation) and competing on cost-per-correct-answer, because a sustained efficiency lead turns a fast-following model gap into a structural margin advantage.">
+          <div class="row-score">1471</div>
+          <div class="row-label">inference cost leadership</div>
+          <div class="row-track">
+            <div class="row-range" style="left:17.967794705882355%; width:64.03617117647059%;"></div>
+            <div class="row-bar" style="width:50.375807566844934%;"></div>
+            <div class="row-count" style="left:50.375807566844934%;">11</div>
+          </div>
+        </div>
+        <div class="row"
+             id="cluster-foundation_model_profit-model_as_loss_leader"
+             data-cluster="model_as_loss_leader"
+             data-description="The model is a loss leader for the surrounding business (ads, commerce, cloud, SaaS); profits accrue in the broader stack, so the lab wins by becoming the hyperscaler&#x27;s managed AI layer or attaching to existing profit engines."
+             data-size="3"
+             data-mean="1459.0"
+             data-min="1427.0"
+             data-max="1501.6"
+             data-toprank="51"
+             data-toptext="The premise is wrong because models will not be high-margin products; profits accrue to whoever bundles models with scarce complements (cloud capacity, deployment, security, and managed ops), so “foundation model companies” win only if they become the hyperscaler’s managed AI layer.">
+          <div class="row-score">1459</div>
+          <div class="row-label">model as loss leader</div>
+          <div class="row-track">
+            <div class="row-range" style="left:37.35711794117646%; width:21.922502352941216%;"></div>
+            <div class="row-bar" style="width:46.76614058823528%;"></div>
+            <div class="row-count" style="left:46.76614058823528%;">3</div>
+          </div>
+        </div>
+        <div class="row singleton"
+             id="cluster-foundation_model_profit-singleton_internal_labor_then_external_playbook"
+             data-cluster="singleton_internal_labor_then_external_playbook"
+             data-description="Replace expensive human labor inside the lab&#x27;s own or partners&#x27; operations first; that internal deployment creates immediate cost savings and a defensible reference product to sell the proven playbook externally."
+             data-size="1"
+             data-mean="1453.4"
+             data-min="1453.4"
+             data-max="1453.4"
+             data-toprank="64"
+             data-toptext="Foundation model companies make money once they can replace expensive human labor inside their own or partners’ operations (support, QA, coding, compliance) and then sell the proven playbook externally, because internal deployment creates both immediate cost savings and a defensible reference product.">
+          <div class="row-score">1453</div>
+          <div class="row-label">internal labor then external playbook <span class="row-tag">singleton</span></div>
+          <div class="row-track">
+            <div class="row-range" style="left:45.12057441176473%; width:0.0%;"></div>
+            <div class="row-bar" style="width:45.12057441176473%;"></div>
+            <div class="row-count" style="left:45.12057441176473%;">1</div>
+          </div>
+        </div>
+        <div class="row singleton"
+             id="cluster-foundation_model_profit-singleton_premise_reversed_acceleration_window"
+             data-cluster="singleton_premise_reversed_acceleration_window"
+             data-description="The premise is backward — labs profit when scaling accelerates, not when it plateaus, because rapid capability gains create temporary monopoly windows for aggressive price discrimination and distribution lock-in before open-source replication."
+             data-size="1"
+             data-mean="1452.6"
+             data-min="1452.6"
+             data-max="1452.6"
+             data-toprank="66"
+             data-toptext="The premise is backward: labs profit not when scaling plateaus but when it accelerates, because rapid capability gains create temporary monopoly windows where they can price discriminate aggressively and lock in distribution before open-source replication, using the surplus to fund the next training run.">
+          <div class="row-score">1453</div>
+          <div class="row-label">premise reversed acceleration window <span class="row-tag">singleton</span></div>
+          <div class="row-track">
+            <div class="row-range" style="left:44.88794823529414%; width:0.0%;"></div>
+            <div class="row-bar" style="width:44.88794823529414%;"></div>
+            <div class="row-count" style="left:44.88794823529414%;">1</div>
+          </div>
+        </div>
+        <div class="row"
+             id="cluster-foundation_model_profit-slowdown_enables_amortization"
+             data-cluster="slowdown_enables_amortization"
+             data-description="Once frontier scaling slows or marginal gains shrink, labs can freeze a model family and amortize one expensive training run across a multi-year product/SKU lifecycle, ending the 3-month treadmill."
+             data-size="8"
+             data-mean="1431.4"
+             data-min="1326.3"
+             data-max="1599.7"
+             data-toprank="21"
+             data-toptext="Profits start when frontier progress becomes lumpy and reliability-bound rather than benchmark-bound, letting labs amortize one major training run across 12–24 months of post-training, evals, and deployment hardening that customers pay for as “assurance” rather than novelty.">
+          <div class="row-score">1431</div>
+          <div class="row-label">slowdown enables amortization</div>
+          <div class="row-track">
+            <div class="row-range" style="left:7.720751470588258%; width:80.41275499999998%;"></div>
+            <div class="row-bar" style="width:38.65633147058822%;"></div>
+            <div class="row-count" style="left:38.65633147058822%;">8</div>
+          </div>
+        </div>
+        <div class="row"
+             id="cluster-foundation_model_profit-model_factory_distillation"
+             data-cluster="model_factory_distillation"
+             data-description="Treat frontier training as a one-time platform/capex cost, then amortize via a distillation pipeline that produces many cheap, specialized, long-lived &#x27;product models&#x27; that capture most revenue."
+             data-size="3"
+             data-mean="1427.3"
+             data-min="1348.0"
+             data-max="1524.0"
+             data-toprank="45"
+             data-toptext="The profit moment arrives when companies stop racing every quarter by building a two-tier portfolio—rare, expensive frontier training for capability jumps plus aggressive distillation into long-lived, cheap “product models” that capture most revenue while frontier spend becomes a smaller, scheduled R&amp;D line.">
+          <div class="row-score">1427</div>
+          <div class="row-label">model factory distillation</div>
+          <div class="row-track">
+            <div class="row-range" style="left:14.12724235294116%; width:51.7691594117647%;"></div>
+            <div class="row-bar" style="width:37.43090823529415%;"></div>
+            <div class="row-count" style="left:37.43090823529415%;">3</div>
+          </div>
+        </div>
+        <div class="row singleton"
+             id="cluster-foundation_model_profit-singleton_brand_network_amortization"
+             data-cluster="singleton_brand_network_amortization"
+             data-description="The premise that each new frontier model is a new company is wrong — profits accrue at the brand/network/API layer, so a single firm amortizes R&amp;D across model generations through user and developer continuity."
+             data-size="1"
+             data-mean="1426.0"
+             data-min="1426.0"
+             data-max="1426.0"
+             data-toprank="75"
+             data-toptext="The premise is wrong because each new frontier model is not a new company: profits accrue at the brand-and-network layer (developer ecosystem, app store, distribution) so the same firm can amortize R&amp;D across model generations and keep users through continuity of APIs and tooling.">
+          <div class="row-score">1426</div>
+          <div class="row-label">brand network amortization <span class="row-tag">singleton</span></div>
+          <div class="row-track">
+            <div class="row-range" style="left:37.049515294117676%; width:0.0%;"></div>
+            <div class="row-bar" style="width:37.049515294117676%;"></div>
+            <div class="row-count" style="left:37.049515294117676%;">1</div>
+          </div>
+        </div>
+        <div class="row"
+             id="cluster-foundation_model_profit-specialization_vertical_models"
+             data-cluster="specialization_vertical_models"
+             data-description="Build domain-specific stacks (legal, medical, code, procurement) with tailored post-training, retrieval, evals, and tools instead of one general model, enabling price discrimination and measurable ROI."
+             data-size="2"
+             data-mean="1418.1"
+             data-min="1360.5"
+             data-max="1475.7"
+             data-toprank="57"
+             data-toptext="They become profitable when they specialize: instead of one general model, they build domain-specific stacks (e.g., code, medicine, customer support) with tailored post-training, retrieval, tools, and benchmarks, enabling price discrimination and measurable ROI that generic open-source models can’t match out of the box.">
+          <div class="row-score">1418</div>
+          <div class="row-label">specialization vertical models</div>
+          <div class="row-track">
+            <div class="row-range" style="left:17.784836764705876%; width:33.899420294117675%;"></div>
+            <div class="row-bar" style="width:34.73454691176471%;"></div>
+            <div class="row-count" style="left:34.73454691176471%;">2</div>
+          </div>
+        </div>
+        <div class="row singleton"
+             id="cluster-foundation_model_profit-singleton_scarce_capacity_allocation"
+             data-cluster="singleton_scarce_capacity_allocation"
+             data-description="Treat top models as scarce strategic assets and sell prioritized, rate-limited access for mission-critical use cases — customers pay for guaranteed allocation during demand spikes, not average throughput."
+             data-size="1"
+             data-mean="1389.6"
+             data-min="1389.6"
+             data-max="1389.6"
+             data-toprank="81"
+             data-toptext="Labs can earn monopoly rents by treating top models as scarce “strategic assets” and selling prioritized, rate-limited access for mission-critical use cases (finance, defense, critical infrastructure) where customers pay for guaranteed allocation during demand spikes rather than for average throughput.">
+          <div class="row-score">1390</div>
+          <div class="row-label">scarce capacity allocation <span class="row-tag">singleton</span></div>
+          <div class="row-track">
+            <div class="row-range" style="left:26.367437352941163%; width:0.0%;"></div>
+            <div class="row-bar" style="width:26.367437352941163%;"></div>
+            <div class="row-count" style="left:26.367437352941163%;">1</div>
+          </div>
+        </div>
+        <div class="row"
+             id="cluster-foundation_model_profit-consolidation_oligopoly_utility"
+             data-cluster="consolidation_oligopoly_utility"
+             data-description="Capital intensity, supply-chain barriers, and distribution advantages force consolidation into a few utility-like providers (possibly with regulated returns or government backing) earning oligopoly or modest utility-level returns."
+             data-size="6"
+             data-mean="1350.0"
+             data-min="1340.3"
+             data-max="1363.2"
+             data-toprank="87"
+             data-toptext="The winning story is consolidation: a few labs earn monopoly-like rents because training frontier models requires organizational scale, capital, and export-controlled supply chains that create durable barriers, while open source remains close but not reliably safe or supported for mission-critical use.">
+          <div class="row-score">1350</div>
+          <div class="row-label">consolidation oligopoly utility</div>
+          <div class="row-track">
+            <div class="row-range" style="left:11.861325294117666%; width:6.712493529411777%;"></div>
+            <div class="row-bar" style="width:14.711510833333316%;"></div>
+            <div class="row-count" style="left:14.711510833333316%;">6</div>
+          </div>
+        </div>
+        <div class="row singleton"
+             id="cluster-foundation_model_profit-singleton_pharma_rolling_rd_portfolio"
+             data-cluster="singleton_pharma_rolling_rd_portfolio"
+             data-description="Frontier labs operate like pharma — a rolling R&amp;D portfolio where each new model is a temporary cash cow funding the next, with patent-like secrecy and time-to-replicate as the natural protection."
+             data-size="1"
+             data-mean="1344.8"
+             data-min="1344.8"
+             data-max="1344.8"
+             data-toprank="94"
+             data-toptext="The premise is wrong: frontier labs don’t need long-lived model margins because the correct business model is a rolling R&amp;D portfolio where each new model is a temporary cash cow funding the next, analogous to pharmaceuticals with patent-like secrecy and time-to-replicate advantages.">
+          <div class="row-score">1345</div>
+          <div class="row-label">pharma rolling rd portfolio <span class="row-tag">singleton</span></div>
+          <div class="row-track">
+            <div class="row-range" style="left:13.184651470588266%; width:0.0%;"></div>
+            <div class="row-bar" style="width:13.184651470588266%;"></div>
+            <div class="row-count" style="left:13.184651470588266%;">1</div>
+          </div>
+        </div>
+        <div class="row singleton"
+             id="cluster-foundation_model_profit-singleton_consortia_shared_public_good"
+             data-cluster="singleton_consortia_shared_public_good"
+             data-description="Treat frontier training as a shared public good (consortia, standard models), with labs competing on proprietary application layers and integration since the model layer itself will be commoditized."
+             data-size="1"
+             data-mean="1325.5"
+             data-min="1325.5"
+             data-max="1325.5"
+             data-toprank="100"
+             data-toptext="Foundation model companies only reliably make money once they treat frontier training as a shared public good (consortia, standard models) and compete on proprietary application layers and integration, because the model layer itself will be near-commoditized.">
+          <div class="row-score">1325</div>
+          <div class="row-label">consortia shared public good <span class="row-tag">singleton</span></div>
+          <div class="row-track">
+            <div class="row-range" style="left:7.496280294117643%; width:0.0%;"></div>
+            <div class="row-bar" style="width:7.496280294117643%;"></div>
+            <div class="row-count" style="left:7.496280294117643%;">1</div>
+          </div>
+        </div></div>
+      <div class="chart-axis"><div class="xtick" style="left:0.0%;"><span>1300</span></div><div class="xtick" style="left:29.411764705882355%;"><span>1400</span></div><div class="xtick" style="left:58.82352941176471%;"><span>1500</span></div><div class="xtick" style="left:88.23529411764706%;"><span>1600</span></div></div>
+    </div>
+    </section>
+
+    <section class="question" id="ai_foundation_deployment">
+      <div class="question-heading">
+        <h2><span class="qnum">Q3.</span> OpenAI Foundation: how to deploy $180B</h2>
+        <span class="qstats">20 clusters · 100 responses</span>
+      </div>
+      <blockquote class="question-text">With OpenAI&#x27;s new raise at an $852B valuation, OpenAI Foundation&#x27;s stake is now worth $180B. Anthropic&#x27;s cofounders have pledged to donate 80% of their wealth. Nobody seems to have a concrete idea of how to deploy 100s of billions (soon trillions) of wealth productively to &quot;make AI go well&quot;. If you were in charge of the OpenAI Foundation right now, what exactly would you do? And when? It&#x27;s not enough to identify a cause you think is important, because that doesn&#x27;t answer the fundamental problem of how you convert money to impact. Identify the concrete strategy you recommend pursuing.</blockquote>
+      
+    <div class="chart">
+      <div class="chart-grid"><div class="grid-line" style="left:0.0%;"></div><div class="grid-line" style="left:29.411764705882355%;"></div><div class="grid-line" style="left:58.82352941176471%;"></div><div class="grid-line" style="left:88.23529411764706%;"></div></div>
+      <div class="chart-rows">
+        <div class="row"
+             id="cluster-ai_foundation_deployment-compute_governance_verification_stack"
+             data-cluster="compute_governance_verification_stack"
+             data-description="Build the technical infrastructure that makes compute legible and auditable — chip-level attestations, secure enclaves, supply-chain monitoring, mandatory audit logging, tamper-evident compute metering — so frontier training becomes throttleable rather than a black-box arms race."
+             data-size="11"
+             data-mean="1614.3"
+             data-min="1521.9"
+             data-max="1679.9"
+             data-toprank="3"
+             data-toptext="The OpenAI Foundation should immediately fund a verifiable “Compute Governance Stack”—hardware-rooted chip attestations, secure enclaves for training/inference, and mandatory audit logging—then pay governments and labs to adopt it so meaningful licensing and monitoring become technically enforceable rather than aspirational.">
+          <div class="row-score">1614</div>
+          <div class="row-label">compute governance verification stack</div>
+          <div class="row-track">
+            <div class="row-range" style="left:65.25631294117649%; width:46.48118058823529%;"></div>
+            <div class="row-bar" style="width:92.42957989304814%;"></div>
+            <div class="row-count" style="left:92.42957989304814%;">11</div>
+          </div>
+        </div>
+        <div class="row singleton"
+             id="cluster-ai_foundation_deployment-singleton_auditor_compute_access_trust"
+             data-cluster="singleton_auditor_compute_access_trust"
+             data-description="Create a standing &#x27;Compute &amp; Model Access Trust&#x27; that buys long-term H100/B100-class capacity and funds revocable, audited access for independent safety evaluators, journalists, and academics — because the bottleneck to accountability is scarce compute and permission, not ideas."
+             data-size="1"
+             data-mean="1610.9"
+             data-min="1610.9"
+             data-max="1610.9"
+             data-toprank="15"
+             data-toptext="The OpenAI Foundation should immediately create a standing $50B “Compute &amp; Model Access Trust” that buys long-term H100/B100-class capacity and funds audited access for independent safety evaluators, journalists, and academics, because the bottleneck to accountability is not ideas but scarce, revocable compute and permission to test frontier systems.">
+          <div class="row-score">1611</div>
+          <div class="row-label">auditor compute access trust <span class="row-tag">singleton</span></div>
+          <div class="row-track">
+            <div class="row-range" style="left:91.43745970588236%; width:0.0%;"></div>
+            <div class="row-bar" style="width:91.43745970588236%;"></div>
+            <div class="row-count" style="left:91.43745970588236%;">1</div>
+          </div>
+        </div>
+        <div class="row"
+             id="cluster-ai_foundation_deployment-audit_eval_regime"
+             data-cluster="audit_eval_regime"
+             data-description="Fund an independent third-party audit/eval regime (an &#x27;AI Safety Institute&#x27; or &#x27;IAEA-for-AI&#x27;) with the technical capacity to evaluate frontier models, then use cloud-access and procurement leverage to make passing those audits a hard requirement for deployment."
+             data-size="10"
+             data-mean="1581.4"
+             data-min="1466.6"
+             data-max="1685.9"
+             data-toprank="1"
+             data-toptext="The OpenAI Foundation should treat its $180B stake as a time-limited window to buy verifiable safety by funding (and requiring for frontier deployment) a standardized, third-party eval-and-audit regime with legal teeth—compute-gated model registration, red-team disclosure safe harbors, and insurance-backed liability—so the default equilibrium shifts from “ship and pray” to “prove and insure.”">
+          <div class="row-score">1581</div>
+          <div class="row-label">audit eval regime</div>
+          <div class="row-track">
+            <div class="row-range" style="left:49.00142264705885%; width:64.48742588235291%;"></div>
+            <div class="row-bar" style="width:82.76876952941178%;"></div>
+            <div class="row-count" style="left:82.76876952941178%;">10</div>
+          </div>
+        </div>
+        <div class="row"
+             id="cluster-ai_foundation_deployment-procurement_market_for_safety"
+             data-cluster="procurement_market_for_safety"
+             data-description="Make safety work revenue-positive by becoming the market-maker for it — large pre-committed prizes, milestone-based contracts, guaranteed procurement for verifiable safety properties (interpretability, monitoring, eval coverage) — so labs compete on measurable risk reduction."
+             data-size="7"
+             data-mean="1579.3"
+             data-min="1507.7"
+             data-max="1627.3"
+             data-toprank="11"
+             data-toptext="The Foundation should deploy capital to reshape the market by paying for safety as a product: offer large, multi-year “safety procurement contracts” to any lab that meets strict eval thresholds and monitoring requirements, making safety investment revenue-positive and thus self-sustaining.">
+          <div class="row-score">1579</div>
+          <div class="row-label">procurement market for safety</div>
+          <div class="row-track">
+            <div class="row-range" style="left:61.076244705882345%; width:35.17753588235297%;"></div>
+            <div class="row-bar" style="width:82.1357762184874%;"></div>
+            <div class="row-count" style="left:82.1357762184874%;">7</div>
+          </div>
+        </div>
+        <div class="row"
+             id="cluster-ai_foundation_deployment-standards_release_infrastructure"
+             data-cluster="standards_release_infrastructure"
+             data-description="Pay top engineers to write open technical standards and release-norm infrastructure (evals, model cards, logging, release gates, model licensing components) that regulators can incorporate by reference, because policy moves at the speed of implementable specs."
+             data-size="3"
+             data-mean="1577.9"
+             data-min="1491.2"
+             data-max="1628.4"
+             data-toprank="10"
+             data-toptext="The Foundation should convert capital into impact by creating a “Frontier Standards Institute” that pays top engineers to write, test, and maintain open technical standards (evals, logging, model cards, release gates) that regulators can incorporate by reference, because policy moves at the speed of implementable specifications.">
+          <div class="row-score">1578</div>
+          <div class="row-label">standards release infrastructure</div>
+          <div class="row-track">
+            <div class="row-range" style="left:56.2459788235294%; width:40.340075882352934%;"></div>
+            <div class="row-bar" style="width:81.72574519607839%;"></div>
+            <div class="row-count" style="left:81.72574519607839%;">3</div>
+          </div>
+        </div>
+        <div class="row"
+             id="cluster-ai_foundation_deployment-insurance_liability_regime"
+             data-cluster="insurance_liability_regime"
+             data-description="Use insurance and liability law as the enforcement mechanism — endow reinsurance backstops, fund actuarial research, lobby for strict product liability, subsidize early premiums — so insurers (not regulators) price-enforce safety standards through coverage denial."
+             data-size="6"
+             data-mean="1575.7"
+             data-min="1485.6"
+             data-max="1664.5"
+             data-toprank="4"
+             data-toptext="The Foundation should convert money into leverage by becoming the default insurer/reinsurer for AI deployments, offering cheap coverage only to firms that meet stringent safety, monitoring, and incident-reporting requirements, thereby turning actuarial pressure into governance.">
+          <div class="row-score">1576</div>
+          <div class="row-label">insurance liability regime</div>
+          <div class="row-track">
+            <div class="row-range" style="left:54.586840588235304%; width:52.616567058823534%;"></div>
+            <div class="row-bar" style="width:81.09433906862752%;"></div>
+            <div class="row-count" style="left:81.09433906862752%;">6</div>
+          </div>
+        </div>
+        <div class="row"
+             id="cluster-ai_foundation_deployment-buy_and_retire_pause"
+             data-cluster="buy_and_retire_pause"
+             data-description="Use capital to compensate labs for not racing — buy-and-shelve dangerous model weights and capability pathways, escrow frontier checkpoints under release conditions, fund delay payments — making non-release more profitable than racing."
+             data-size="4"
+             data-mean="1554.9"
+             data-min="1505.4"
+             data-max="1595.8"
+             data-toprank="23"
+             data-toptext="The highest-leverage use of $180B is to create a compute-and-weights escrow regime by subsidizing secure training facilities and paying labs to place frontier checkpoints under legally binding release conditions, so that in crises (misuse, deception, runaway self-improvement) society can pause capability diffusion without relying on voluntary lab restraint.">
+          <div class="row-score">1555</div>
+          <div class="row-label">buy and retire pause</div>
+          <div class="row-track">
+            <div class="row-range" style="left:60.402640294117674%; width:26.59534588235293%;"></div>
+            <div class="row-bar" style="width:74.98365948529414%;"></div>
+            <div class="row-count" style="left:74.98365948529414%;">4</div>
+          </div>
+        </div>
+        <div class="row"
+             id="cluster-ai_foundation_deployment-secure_by_default_deployment"
+             data-cluster="secure_by_default_deployment"
+             data-description="Build and subsidize public-interest reference implementations of secure agentic patterns — sandboxing, least-privilege tool use, auditable action logs, kill-switches — so that even buggy or misaligned systems are systematically prevented from causing large-scale harm."
+             data-size="2"
+             data-mean="1543.9"
+             data-min="1512.7"
+             data-max="1575.1"
+             data-toprank="30"
+             data-toptext="The Foundation should spend tens of billions to create public-interest “reference implementations” of secure agentic systems (least-privilege tool use, sandboxing, auditable action logs, and kill-switches) and then pay cloud providers to integrate them, because most real-world harm will come from sloppy deployment rather than exotic inner misalignment.">
+          <div class="row-score">1544</div>
+          <div class="row-label">secure by default deployment</div>
+          <div class="row-track">
+            <div class="row-range" style="left:62.556658235294115%; width:18.36402529411763%;"></div>
+            <div class="row-bar" style="width:71.73867088235298%;"></div>
+            <div class="row-count" style="left:71.73867088235298%;">2</div>
+          </div>
+        </div>
+        <div class="row singleton"
+             id="cluster-ai_foundation_deployment-singleton_weights_security_proliferation_prevention"
+             data-cluster="singleton_weights_security_proliferation_prevention"
+             data-description="Subsidize a hard security push across the frontier ecosystem — secure enclaves, key management, insider-threat programs, rapid-response cyber teams — because preventing model theft and weight leakage is the cheapest way to reduce proliferation-driven risk."
+             data-size="1"
+             data-mean="1537.6"
+             data-min="1537.6"
+             data-max="1537.6"
+             data-toprank="39"
+             data-toptext="The Foundation should buy time by funding and implementing a hard security push across the frontier ecosystem—subsidizing secure enclaves, key management, insider-threat programs, and rapid-response cyber teams—because preventing model theft and weight leakage is the cheapest way to reduce proliferation-driven risk.">
+          <div class="row-score">1538</div>
+          <div class="row-label">weights security proliferation prevention <span class="row-tag">singleton</span></div>
+          <div class="row-track">
+            <div class="row-range" style="left:69.88814529411765%; width:0.0%;"></div>
+            <div class="row-bar" style="width:69.88814529411765%;"></div>
+            <div class="row-count" style="left:69.88814529411765%;">1</div>
+          </div>
+        </div>
+        <div class="row"
+             id="cluster-ai_foundation_deployment-civil_defense_resilience"
+             data-cluster="civil_defense_resilience"
+             data-description="Make the world harder to harm regardless of alignment progress — fund biosecurity (DNA synthesis screening, pathogen surveillance), cyber defense (vulnerability discovery and patching), critical-infrastructure hardening, content provenance/authentication, and AI incident-response capacity."
+             data-size="12"
+             data-mean="1484.8"
+             data-min="1318.9"
+             data-max="1621.4"
+             data-toprank="13"
+             data-toptext="The Foundation should treat biosecurity as the near-term catastrophe bottleneck and spend heavily to make advanced-bio abuse hard by default: universal DNA synthesis screening, pathogen surveillance, rapid vaccine platforms, and red-team programs that continuously test whether models can meaningfully lower barriers to bioweapons.">
+          <div class="row-score">1485</div>
+          <div class="row-label">civil defense resilience</div>
+          <div class="row-track">
+            <div class="row-range" style="left:5.5608602941176475%; width:88.95898529411765%;"></div>
+            <div class="row-bar" style="width:54.35143453431378%;"></div>
+            <div class="row-count" style="left:54.35143453431378%;">12</div>
+          </div>
+        </div>
+        <div class="row"
+             id="cluster-ai_foundation_deployment-open_auditing_transparency"
+             data-cluster="open_auditing_transparency"
+             data-description="Fund radical transparency — open-source the entire safety-relevant toolchain (eval suites, interpretability libraries, incident databases), pay bounties for reproducible failures, endow whistleblower funds and an investigative newsroom — so open scrutiny makes deception reputationally and legally costly."
+             data-size="2"
+             data-mean="1461.2"
+             data-min="1438.0"
+             data-max="1484.3"
+             data-toprank="55"
+             data-toptext="The core strategy should be to prevent a single-point-of-failure dictator model by funding robust open auditing: pay for open-source eval suites, independent third-party replication of safety claims, and a permanent investigative newsroom/whistleblower fund that makes deception by frontier labs extremely costly.">
+          <div class="row-score">1461</div>
+          <div class="row-label">open auditing transparency</div>
+          <div class="row-track">
+            <div class="row-range" style="left:40.59476029411766%; width:13.606384705882341%;"></div>
+            <div class="row-bar" style="width:47.39795264705883%;"></div>
+            <div class="row-count" style="left:47.39795264705883%;">2</div>
+          </div>
+        </div>
+        <div class="row"
+             id="cluster-ai_foundation_deployment-state_capacity_talent_pipeline"
+             data-cluster="state_capacity_talent_pipeline"
+             data-description="Build governance capacity by paying for the people — competitive-salary technical fellows embedded in regulators, courts, and standards bodies; an &#x27;AI FDA&#x27;; &#x27;safety residencies&#x27;; rotating civil service; advocacy and litigation capacity — because every other intervention fails without operational competence inside the state."
+             data-size="9"
+             data-mean="1441.7"
+             data-min="1331.5"
+             data-max="1510.8"
+             data-toprank="48"
+             data-toptext="Instead of scattering grants, the Foundation should build and endow a permanent AI “FDA” capacity by paying for technical staff embedded with regulators worldwide, shared testing infrastructure, and rapid rulemaking playbooks that can be activated the moment frontier systems cross specific capability thresholds.">
+          <div class="row-score">1442</div>
+          <div class="row-label">state capacity talent pipeline</div>
+          <div class="row-track">
+            <div class="row-range" style="left:9.264345882352913%; width:52.74418176470589%;"></div>
+            <div class="row-bar" style="width:41.67714598039217%;"></div>
+            <div class="row-count" style="left:41.67714598039217%;">9</div>
+          </div>
+        </div>
+        <div class="row"
+             id="cluster-ai_foundation_deployment-infrastructure_for_governance"
+             data-cluster="infrastructure_for_governance"
+             data-description="Spend on energy, grid, and semiconductor capacity in democracies — conditional on adoption of licensing/safety-gating, or to compensate the actors who would otherwise lose in a slowdown — making credible regulation politically and economically feasible."
+             data-size="2"
+             data-mean="1430.3"
+             data-min="1331.9"
+             data-max="1528.7"
+             data-toprank="44"
+             data-toptext="The best strategy is to buy time: fund massive electricity, grid, and chip supply investments conditional on adoption of licensing and safety-gating, using capital to make regulation politically feasible by compensating the actors who would otherwise lose in a slowdown.">
+          <div class="row-score">1430</div>
+          <div class="row-label">infrastructure for governance</div>
+          <div class="row-track">
+            <div class="row-range" style="left:9.375949705882329%; width:57.883024999999996%;"></div>
+            <div class="row-bar" style="width:38.31746220588229%;"></div>
+            <div class="row-count" style="left:38.31746220588229%;">2</div>
+          </div>
+        </div>
+        <div class="row"
+             id="cluster-ai_foundation_deployment-treaty_international_coalition"
+             data-cluster="treaty_international_coalition"
+             data-description="Bankroll diplomatic coordination — US-China bargains, US-EU-UK-Japan pacts, &#x27;Nonproliferation Clubs&#x27; of mid-sized powers — to negotiate enforceable frontier-training licensing and inspection regimes backed by trade incentives and sanctions."
+             data-size="6"
+             data-mean="1427.6"
+             data-min="1371.5"
+             data-max="1543.7"
+             data-toprank="34"
+             data-toptext="The highest-leverage use of $180B is to buy down the geopolitical race dynamic by funding and brokering enforceable US–China (and US–allies) compute monitoring and frontier-training transparency agreements, including large subsidies for verified compliance and penalties for evasion.">
+          <div class="row-score">1428</div>
+          <div class="row-label">treaty international coalition</div>
+          <div class="row-track">
+            <div class="row-range" style="left:21.033571470588267%; width:50.63749499999999%;"></div>
+            <div class="row-bar" style="width:37.5278353921569%;"></div>
+            <div class="row-count" style="left:37.5278353921569%;">6</div>
+          </div>
+        </div>
+        <div class="row"
+             id="cluster-ai_foundation_deployment-charter_governance"
+             data-cluster="charter_governance"
+             data-description="Use the Foundation&#x27;s stake itself to force governance — rewrite OpenAI&#x27;s charter and board structure to hard-cap capability scaling absent audited safety thresholds, then subsidize peer labs to adopt the same constraints to avoid unilateral disadvantage."
+             data-size="2"
+             data-mean="1426.4"
+             data-min="1406.4"
+             data-max="1446.4"
+             data-toprank="68"
+             data-toptext="The Foundation should deny the premise that money directly buys “AI going well” and instead use its stake to change governance—mandating binding safety covenants, independent board oversight, and enforceable deployment vetoes at OpenAI and peer labs—because control over the frontier actor matters more than marginal grants.">
+          <div class="row-score">1426</div>
+          <div class="row-label">charter governance</div>
+          <div class="row-track">
+            <div class="row-range" style="left:31.30619764705885%; width:11.751569705882314%;"></div>
+            <div class="row-bar" style="width:37.181982500000004%;"></div>
+            <div class="row-count" style="left:37.181982500000004%;">2</div>
+          </div>
+        </div>
+        <div class="row"
+             id="cluster-ai_foundation_deployment-alignment_manhattan_project"
+             data-cluster="alignment_manhattan_project"
+             data-description="Run a Manhattan/Apollo-style concentrated research program for alignment — interpretability, mechanistic anomaly detection, scalable oversight, training-time interventions — at networked elite labs with shared compute and milestone-driven funding, to make alignment a reproducible engineering discipline."
+             data-size="9"
+             data-mean="1419.7"
+             data-min="1327.5"
+             data-max="1534.5"
+             data-toprank="40"
+             data-toptext="The Foundation should convert money to impact by building an “alignment Manhattan Project” that pays for massive, shared interpretability and mechanistic anomaly-detection tooling—open-sourcing the instruments, not the weights—so labs can reliably detect deception, situational awareness, and goal misgeneralization before deployment.">
+          <div class="row-score">1420</div>
+          <div class="row-label">alignment manhattan project</div>
+          <div class="row-track">
+            <div class="row-range" style="left:8.097738823529426%; width:60.87894323529413%;"></div>
+            <div class="row-bar" style="width:35.204968006535985%;"></div>
+            <div class="row-count" style="left:35.204968006535985%;">9</div>
+          </div>
+        </div>
+        <div class="row singleton"
+             id="cluster-ai_foundation_deployment-singleton_ai_dividend_plus_hard_law_lobbying"
+             data-cluster="singleton_ai_dividend_plus_hard_law_lobbying"
+             data-description="Philanthropy can&#x27;t reliably steer a fast, profit-driven frontier — return most funds to the public via a politically durable &#x27;AI dividend&#x27; trust while using a smaller tranche to lobby for hard-law accountability (liability, licensing, whistleblower protections) that doesn&#x27;t depend on altruism."
+             data-size="1"
+             data-mean="1413.3"
+             data-min="1413.3"
+             data-max="1413.3"
+             data-toprank="77"
+             data-toptext="The premise is wrong—philanthropy can’t reliably steer a fast, profit-driven frontier—so the Foundation should instead return most funds to the public via a politically durable ‘AI dividend’ trust while using a smaller tranche to lobby for hard-law accountability (liability, licensing, and whistleblower protections) that doesn’t depend on altruism.">
+          <div class="row-score">1413</div>
+          <div class="row-label">ai dividend plus hard law lobbying <span class="row-tag">singleton</span></div>
+          <div class="row-track">
+            <div class="row-range" style="left:33.32822441176471%; width:0.0%;"></div>
+            <div class="row-bar" style="width:33.32822441176471%;"></div>
+            <div class="row-count" style="left:33.32822441176471%;">1</div>
+          </div>
+        </div>
+        <div class="row"
+             id="cluster-ai_foundation_deployment-public_option_frontier_lab"
+             data-cluster="public_option_frontier_lab"
+             data-description="Bankroll a parallel safety-mandated frontier lab (or &#x27;public-option model stack&#x27;) with a charter that hard-binds slow deployment, published safety research, and external governance — using its existence to set norms and force incumbents to match safety standards to stay legitimate."
+             data-size="8"
+             data-mean="1399.4"
+             data-min="1326.4"
+             data-max="1469.6"
+             data-toprank="59"
+             data-toptext="The Foundation should spend its war chest to create a parallel “public-option frontier lab” whose charter hard-binds it to slow deployment, publish safety research, and accept external governance, using it as a credible benchmark and talent magnet that forces private labs to match safety standards to stay legitimate.">
+          <div class="row-score">1399</div>
+          <div class="row-label">public option frontier lab</div>
+          <div class="row-track">
+            <div class="row-range" style="left:7.772974411764688%; width:42.09658676470587%;"></div>
+            <div class="row-bar" style="width:29.237834117647026%;"></div>
+            <div class="row-count" style="left:29.237834117647026%;">8</div>
+          </div>
+        </div>
+        <div class="row"
+             id="cluster-ai_foundation_deployment-preserve_optionality_emergency_brake"
+             data-cluster="preserve_optionality_emergency_brake"
+             data-description="Don&#x27;t deploy most of the capital now — lock up the endowment, spend only on high-optionality measurement and talent, acquire compute/energy/talent reserves, reserve the bulk for a pivotal moment (treaty window, alignment breakthrough, emergency-brake nationalization) when marginal dollars buy orders-of-magnitude more impact."
+             data-size="3"
+             data-mean="1342.7"
+             data-min="1341.2"
+             data-max="1345.6"
+             data-toprank="91"
+             data-toptext="The Foundation should deny the premise that we can proactively steer outcomes with philanthropy and instead use the $180B to create an emergency brake: a standing capability to rapidly buy, shut down, or nationalize critical AI assets (compute, labs, chip inventories) when credible catastrophic risk signals appear.">
+          <div class="row-score">1343</div>
+          <div class="row-label">preserve optionality emergency brake</div>
+          <div class="row-track">
+            <div class="row-range" style="left:12.114958235294099%; width:1.2909344117647112%;"></div>
+            <div class="row-bar" style="width:12.547904901960747%;"></div>
+            <div class="row-count" style="left:12.547904901960747%;">3</div>
+          </div>
+        </div>
+        <div class="row singleton"
+             id="cluster-ai_foundation_deployment-singleton_broad_institutional_resilience"
+             data-cluster="singleton_broad_institutional_resilience"
+             data-description="Philanthropy cannot steer a strategic technology at this scale — liquidate most of the stake into an irrevocable trust funding broad institutional resilience (rule-of-law, anti-corruption, secure government IT, science capacity) rather than attempting direct AI governance or alignment interventions."
+             data-size="1"
+             data-mean="1322.2"
+             data-min="1322.2"
+             data-max="1322.2"
+             data-toprank="99"
+             data-toptext="The premise is wrong—philanthropy cannot steer a strategic technology at this scale—so the Foundation should minimize value drift by liquidating most of its stake into an irrevocable trust that funds broad institutional resilience (rule-of-law, anti-corruption, secure government IT, and science capacity) rather than attempting direct AI governance or alignment interventions.">
+          <div class="row-score">1322</div>
+          <div class="row-label">broad institutional resilience <span class="row-tag">singleton</span></div>
+          <div class="row-track">
+            <div class="row-range" style="left:6.5159205882352635%; width:0.0%;"></div>
+            <div class="row-bar" style="width:6.5159205882352635%;"></div>
+            <div class="row-count" style="left:6.5159205882352635%;">1</div>
+          </div>
+        </div></div>
+      <div class="chart-axis"><div class="xtick" style="left:0.0%;"><span>1300</span></div><div class="xtick" style="left:29.411764705882355%;"><span>1400</span></div><div class="xtick" style="left:58.82352941176471%;"><span>1500</span></div><div class="xtick" style="left:88.23529411764706%;"><span>1600</span></div></div>
+    </div>
+    </section>
+
+    <section class="question" id="countries_outside_ai_chain">
+      <div class="question-heading">
+        <h2><span class="qnum">Q4.</span> Countries outside the AI production chain</h2>
+        <span class="qstats">21 clusters · 100 responses</span>
+      </div>
+      <blockquote class="question-text">What should countries which are not currently in the AI production chain (semis, energy, frontier models, robotics) do in order to not get totally sidestepped by transformative AI? If you&#x27;re the leader of India or Nigeria, what do you do right now?</blockquote>
+      
+    <div class="chart">
+      <div class="chart-grid"><div class="grid-line" style="left:0.0%;"></div><div class="grid-line" style="left:29.411764705882355%;"></div><div class="grid-line" style="left:58.82352941176471%;"></div><div class="grid-line" style="left:88.23529411764706%;"></div></div>
+      <div class="chart-rows">
+        <div class="row"
+             id="cluster-countries_outside_ai_chain-digital_public_infrastructure_substrate"
+             data-cluster="digital_public_infrastructure_substrate"
+             data-description="Build sovereign &#x27;thin waist&#x27; digital public infrastructure — national digital ID, interoperable payments, secure APIs, e-invoicing, e-procurement, agent-layer rails — so domestic firms can cheaply plug in any model and the formalized economy becomes legible to AI-enabled productivity gains."
+             data-size="7"
+             data-mean="1590.8"
+             data-min="1509.9"
+             data-max="1659.0"
+             data-toprank="5"
+             data-toptext="To avoid capture by foreign platforms, a non-producer state should build a national “agent layer” on open standards—secure identity, payments, logging, and procurement APIs—so domestic firms can swap underlying models while keeping data, workflows, and rents at home.">
+          <div class="row-score">1591</div>
+          <div class="row-label">digital public infrastructure substrate</div>
+          <div class="row-track">
+            <div class="row-range" style="left:61.73997941176468%; width:43.85429176470592%;"></div>
+            <div class="row-bar" style="width:85.54014042016802%;"></div>
+            <div class="row-count" style="left:85.54014042016802%;">7</div>
+          </div>
+        </div>
+        <div class="row"
+             id="cluster-countries_outside_ai_chain-energy_datacenter_wedge"
+             data-cluster="energy_datacenter_wedge"
+             data-description="Make energy the wedge into the AI value chain — overbuild reliable, low-cost power (gas+nuclear+renewables+grid), fast-track permits, and offer long-term energy/land deals so the country becomes the cheapest location for inference and training datacenters."
+             data-size="10"
+             data-mean="1566.0"
+             data-min="1404.1"
+             data-max="1673.4"
+             data-toprank="2"
+             data-toptext="The fastest path into the AI value chain is to make energy the wedge: overbuild reliable power (gas+nuclear+grid) and invite datacenters with stable rules, then tax and reinvest that datacenter boom into local chips packaging, cooling, and infrastructure manufacturing ecosystems.">
+          <div class="row-score">1566</div>
+          <div class="row-label">energy datacenter wedge</div>
+          <div class="row-track">
+            <div class="row-range" style="left:30.604631470588266%; width:79.21945029411759%;"></div>
+            <div class="row-bar" style="width:78.23490358823526%;"></div>
+            <div class="row-count" style="left:78.23490358823526%;">10</div>
+          </div>
+        </div>
+        <div class="row"
+             id="cluster-countries_outside_ai_chain-domestic_deployment_diffusion"
+             data-cluster="domestic_deployment_diffusion"
+             data-description="Treat AI as an imported general-purpose input and win by being the world&#x27;s fastest deployer — aggressive state procurement of AI copilots across government services (tax, health, courts, education), national missions tied to outcome metrics, and subsidized adoption in SMEs/agri/clinics — because productivity gains accrue mainly to users, not producers."
+             data-size="13"
+             data-mean="1554.2"
+             data-min="1444.1"
+             data-max="1679.2"
+             data-toprank="1"
+             data-toptext="India or Nigeria should treat AI like public health—build a national “AI extension service” that buys frontier model access in bulk, trains domain-specific copilots, and embeds them inside SMEs, farms, clinics, courts, and schools to raise total factor productivity faster than any attempt to manufacture chips.">
+          <div class="row-score">1554</div>
+          <div class="row-label">domestic deployment diffusion</div>
+          <div class="row-track">
+            <div class="row-range" style="left:42.38605529411764%; width:69.13988970588233%;"></div>
+            <div class="row-bar" style="width:74.75718986425338%;"></div>
+            <div class="row-count" style="left:74.75718986425338%;">13</div>
+          </div>
+        </div>
+        <div class="row"
+             id="cluster-countries_outside_ai_chain-sovereign_compute_infrastructure"
+             data-cluster="sovereign_compute_infrastructure"
+             data-description="Build a sovereign compute utility — publicly financed/contracted GPU clusters and inference clouds with open APIs and subsidized access for domestic startups, universities, and government services — so the country isn&#x27;t held hostage by foreign platform throttling."
+             data-size="5"
+             data-mean="1553.3"
+             data-min="1470.9"
+             data-max="1667.5"
+             data-toprank="3"
+             data-toptext="The fastest path into the AI production chain is to win the inference game, so these countries should build sovereign compute focused on cheap, reliable inference (not frontier training) via long-term power contracts, port-to-datacenter corridors, and a national API marketplace that anchors local startups and government services.">
+          <div class="row-score">1553</div>
+          <div class="row-label">sovereign compute infrastructure</div>
+          <div class="row-track">
+            <div class="row-range" style="left:50.265820882352926%; width:57.823965882352965%;"></div>
+            <div class="row-bar" style="width:74.51272641176475%;"></div>
+            <div class="row-count" style="left:74.51272641176475%;">5</div>
+          </div>
+        </div>
+        <div class="row"
+             id="cluster-countries_outside_ai_chain-data_moat_national_datasets"
+             data-cluster="data_moat_national_datasets"
+             data-description="If you can&#x27;t win on chips, win on data — capture proprietary national datasets (health, language, agriculture, satellite/mobility) via privacy-preserving data trusts and cooperatives, then use that data leverage to train domestic models for local markets and bargain for access globally."
+             data-size="7"
+             data-mean="1534.5"
+             data-min="1462.7"
+             data-max="1580.0"
+             data-toprank="21"
+             data-toptext="The highest-leverage move is to convert domestic problems into globally valuable labeled datasets by funding national data cooperatives (health, agriculture, logistics, language) with strong governance and revenue-sharing, then using those datasets to bargain for model access, local fine-tuning, and exportable AI services.">
+          <div class="row-score">1534</div>
+          <div class="row-label">data moat national datasets</div>
+          <div class="row-track">
+            <div class="row-range" style="left:47.8635988235294%; width:34.48020500000004%;"></div>
+            <div class="row-bar" style="width:68.97011331932778%;"></div>
+            <div class="row-count" style="left:68.97011331932778%;">7</div>
+          </div>
+        </div>
+        <div class="row"
+             id="cluster-countries_outside_ai_chain-compute_access_bargaining_bloc"
+             data-cluster="compute_access_bargaining_bloc"
+             data-description="Treat compute access like oil reserves — sign long-term contracts for cloud/GPU/model capacity, individually or via regional bargaining coalitions (India–Nigeria–Indonesia–Brazil etc.), to convert pooled demand into leverage for tech transfer, audit rights, and preferential pricing."
+             data-size="9"
+             data-mean="1506.9"
+             data-min="1351.7"
+             data-max="1651.3"
+             data-toprank="6"
+             data-toptext="India or Nigeria should treat AI as a trade-and-security dependency and immediately negotiate long-term “compute access treaties” (GPU leasing, model weights escrow, and priority inference quotas) with multiple blocs to prevent a single supplier from becoming a national choke point.">
+          <div class="row-score">1507</div>
+          <div class="row-label">compute access bargaining bloc</div>
+          <div class="row-track">
+            <div class="row-range" style="left:15.200892352941148%; width:88.11493852941179%;"></div>
+            <div class="row-bar" style="width:60.84279150326799%;"></div>
+            <div class="row-count" style="left:60.84279150326799%;">9</div>
+          </div>
+        </div>
+        <div class="row"
+             id="cluster-countries_outside_ai_chain-ai_assurance_eval_jurisdiction"
+             data-cluster="ai_assurance_eval_jurisdiction"
+             data-description="Specialize in AI assurance and governance — found a national model testing authority offering world-class red-teaming, benchmarking, certification, and incident reporting — turning regulatory credibility into a geopolitical lever, indispensable counterparty role, and high-skill jobs."
+             data-size="5"
+             data-mean="1494.4"
+             data-min="1383.7"
+             data-max="1598.2"
+             data-toprank="17"
+             data-toptext="If transformative AI arrives, the decisive variable will be who can verify and govern it, so India or Nigeria should build national AI assurance institutions—auditing, red-teaming, incident reporting, and critical-infrastructure model certification—because credible assurance becomes a trade and security gatekeeper role even without frontier R&amp;D.">
+          <div class="row-score">1494</div>
+          <div class="row-label">ai assurance eval jurisdiction</div>
+          <div class="row-track">
+            <div class="row-range" style="left:24.60378352941174%; width:63.11210411764711%;"></div>
+            <div class="row-bar" style="width:57.18532517647057%;"></div>
+            <div class="row-count" style="left:57.18532517647057%;">5</div>
+          </div>
+        </div>
+        <div class="row"
+             id="cluster-countries_outside_ai_chain-vertical_specialization_export_niches"
+             data-cluster="vertical_specialization_export_niches"
+             data-description="Pick 2–3 export sectors where local comparative advantage meets AI (English back-office, radiology, claims processing, pharma/clinical trials, agriculture, BPO 2.0) and run mission-style programs — shared datasets, talent pipelines, end-to-end agent factories — to dominate those niches before AI commoditizes services."
+             data-size="9"
+             data-mean="1479.7"
+             data-min="1370.0"
+             data-max="1585.6"
+             data-toprank="18"
+             data-toptext="The right strategy is to pick two or three exportable niches where local comparative advantage meets AI (e.g., English-language customer ops, radiology back-office, insurance adjudication, code maintenance) and subsidize end-to-end “agent factories” that turn cheap talent into globally sold AI-enabled services.">
+          <div class="row-score">1480</div>
+          <div class="row-label">vertical specialization export niches</div>
+          <div class="row-track">
+            <div class="row-range" style="left:20.579743235294124%; width:63.43357588235295%;"></div>
+            <div class="row-bar" style="width:52.85660035947711%;"></div>
+            <div class="row-count" style="left:52.85660035947711%;">9</div>
+          </div>
+        </div>
+        <div class="row"
+             id="cluster-countries_outside_ai_chain-state_capacity_institutional"
+             data-cluster="state_capacity_institutional"
+             data-description="Upgrade state capacity and institutional quality — embed elite technical units in priority ministries (tax, customs, health), reform regulation/courts/procurement to be fast and corruption-resistant, and use AI to improve government services — because governance quality determines whether AI gains translate into national power."
+             data-size="5"
+             data-mean="1477.2"
+             data-min="1327.9"
+             data-max="1632.8"
+             data-toprank="10"
+             data-toptext="Countries like India and Nigeria should build “AI civil service capacity” first—elite technical units embedded in every major ministry with authority to redesign processes around automation—because state capability to adopt and govern AI determines whether private gains translate into national power.">
+          <div class="row-score">1477</div>
+          <div class="row-label">state capacity institutional</div>
+          <div class="row-track">
+            <div class="row-range" style="left:8.196791764705855%; width:89.69057941176477%;"></div>
+            <div class="row-bar" style="width:52.1129182352941%;"></div>
+            <div class="row-count" style="left:52.1129182352941%;">5</div>
+          </div>
+        </div>
+        <div class="row"
+             id="cluster-countries_outside_ai_chain-mass_deployment_talent"
+             data-cluster="mass_deployment_talent"
+             data-description="Build human capital for AI deployment at scale — millions trained in process redesign, evaluation, AI-augmented operations, vocational AI literacy, rapid reskilling apprenticeships — because the binding constraint on capturing AI value is organizational transformation capacity, not algorithmic novelty."
+             data-size="4"
+             data-mean="1473.5"
+             data-min="1346.6"
+             data-max="1575.4"
+             data-toprank="26"
+             data-toptext="The fastest path to power is human capital targeted at deployment—training millions in process redesign, evaluation, and AI-augmented operations (not just ML PhDs)—because the binding constraint on capturing AI value is organizational transformation capacity rather than algorithmic novelty.">
+          <div class="row-score">1473</div>
+          <div class="row-label">mass deployment talent</div>
+          <div class="row-track">
+            <div class="row-range" style="left:13.69919205882351%; width:67.29660235294118%;"></div>
+            <div class="row-bar" style="width:51.01483404411764%;"></div>
+            <div class="row-count" style="left:51.01483404411764%;">4</div>
+          </div>
+        </div>
+        <div class="row"
+             id="cluster-countries_outside_ai_chain-regulatory_leverage_jurisdiction"
+             data-cluster="regulatory_leverage_jurisdiction"
+             data-description="Convert market access into industrial policy — mandate audited local evals, onshore inference, weight escrow, and tech transfer as conditions for major licenses; pass clear liability/privacy/sandbox laws; trade large domestic user bases for fine-tuning rights and training partnerships."
+             data-size="5"
+             data-mean="1472.5"
+             data-min="1414.1"
+             data-max="1561.4"
+             data-toprank="33"
+             data-toptext="The core defense against being “AI-colonized” is bargaining power, so these governments should mandate that any AI deployed in critical sectors uses audited local evals, escrowed weights or onshore inference, and enforceable liability—turning regulation into a revenue and capability lever rather than a brake.">
+          <div class="row-score">1472</div>
+          <div class="row-label">regulatory leverage jurisdiction</div>
+          <div class="row-track">
+            <div class="row-range" style="left:33.54420147058824%; width:43.331417058823526%;"></div>
+            <div class="row-bar" style="width:50.72429270588239%;"></div>
+            <div class="row-count" style="left:50.72429270588239%;">5</div>
+          </div>
+        </div>
+        <div class="row"
+             id="cluster-countries_outside_ai_chain-national_security_defense"
+             data-cluster="national_security_defense"
+             data-description="Prioritize national security as the binding constraint — build cyber defense, biometric/fraud detection, influence-ops monitoring, secure government model stacks, and AI-enabled defense manufacturing (drones, intel) — because political sovereignty fails before economic competitiveness in a world of powerful AI."
+             data-size="2"
+             data-mean="1471.1"
+             data-min="1366.1"
+             data-max="1576.1"
+             data-toprank="25"
+             data-toptext="To keep agency in a world of powerful AI, India or Nigeria should build a national “AI security state capacity” now—cyber defense, biometric fraud detection, influence-ops monitoring, and secure government model stacks—because political sovereignty will fail before economic competitiveness does.">
+          <div class="row-score">1471</div>
+          <div class="row-label">national security defense</div>
+          <div class="row-track">
+            <div class="row-range" style="left:19.431993823529396%; width:61.785354999999996%;"></div>
+            <div class="row-bar" style="width:50.32467132352942%;"></div>
+            <div class="row-count" style="left:50.32467132352942%;">2</div>
+          </div>
+        </div>
+        <div class="row"
+             id="cluster-countries_outside_ai_chain-bloc_geopolitical_alignment"
+             data-cluster="bloc_geopolitical_alignment"
+             data-description="Use geopolitical alignment as currency — either hard-align with the dominant AI bloc (US/EU or China) for guaranteed access, or hedge by signing long-term security-and-supply compacts with multiple blocs (US/EU, China, Gulf) simultaneously."
+             data-size="2"
+             data-mean="1468.7"
+             data-min="1386.5"
+             data-max="1551.0"
+             data-toprank="39"
+             data-toptext="Non-chain countries should pursue hard security alignment with the dominant AI bloc (US/EU or China) in exchange for guaranteed access to frontier models, chips, and safety tooling, because in a world of export controls, geopolitics—not entrepreneurship—sets the ceiling on capability.">
+          <div class="row-score">1469</div>
+          <div class="row-label">bloc geopolitical alignment</div>
+          <div class="row-track">
+            <div class="row-range" style="left:25.433928235294097%; width:48.38088264705882%;"></div>
+            <div class="row-bar" style="width:49.62436955882354%;"></div>
+            <div class="row-count" style="left:49.62436955882354%;">2</div>
+          </div>
+        </div>
+        <div class="row"
+             id="cluster-countries_outside_ai_chain-open_standards_portability"
+             data-cluster="open_standards_portability"
+             data-description="Hard-commit to open standards, model portability, and competition policy — fund open-source ecosystems, mandate APIs, prevent data monopolies — so foreign labs can&#x27;t extract monopoly rents through lock-in and domestic startups can compete on top of any model."
+             data-size="3"
+             data-mean="1447.9"
+             data-min="1388.5"
+             data-max="1517.2"
+             data-toprank="49"
+             data-toptext="To avoid extraction by foreign platforms, India or Nigeria should mandate data portability and open standards (payments, messaging, identity, business records) so local startups can compete on top of global models, keeping switching costs and profits inside the country.">
+          <div class="row-score">1448</div>
+          <div class="row-label">open standards portability</div>
+          <div class="row-track">
+            <div class="row-range" style="left:26.04189117647058%; width:37.830750882352966%;"></div>
+            <div class="row-bar" style="width:43.5106000980392%;"></div>
+            <div class="row-count" style="left:43.5106000980392%;">3</div>
+          </div>
+        </div>
+        <div class="row"
+             id="cluster-countries_outside_ai_chain-elite_ai_builder_talent"
+             data-cluster="elite_ai_builder_talent"
+             data-description="Concentrate on the thin layer of elite AI talent — top-0.1% scholarships, labs embedded in universities, diaspora &#x27;return ticket&#x27; packages with pay parity to Big Tech, and fast-track immigration for AI builders — because critical mass of researchers and product leaders is the only durable bargaining chip."
+             data-size="4"
+             data-mean="1421.0"
+             data-min="1363.1"
+             data-max="1473.1"
+             data-toprank="61"
+             data-toptext="The core play is human capital arbitrage: massively subsidize elite AI education and researcher salaries tied to domestic labs, while using diaspora return packages and fast-track immigration to concentrate enough talent to build competitive applied-model companies even without frontier training.">
+          <div class="row-score">1421</div>
+          <div class="row-label">elite ai builder talent</div>
+          <div class="row-track">
+            <div class="row-range" style="left:18.55944823529412%; width:32.366318823529404%;"></div>
+            <div class="row-bar" style="width:35.600304852941186%;"></div>
+            <div class="row-count" style="left:35.600304852941186%;">4</div>
+          </div>
+        </div>
+        <div class="row"
+             id="cluster-countries_outside_ai_chain-ai_adjacent_manufacturing"
+             data-cluster="ai_adjacent_manufacturing"
+             data-description="Capture value in AI-adjacent manufacturing where logistics and scale matter more than frontier IP — power electronics, datacenter construction/cooling, packaging, sensors, semiconductor inputs (chemicals, gases, precision components) — and become an indispensable supplier to the global AI supply chain."
+             data-size="2"
+             data-mean="1420.4"
+             data-min="1380.3"
+             data-max="1460.5"
+             data-toprank="67"
+             data-toptext="To avoid becoming a raw-material appendage, the government should create aggressive industrial policy for AI-adjacent manufacturing it can actually win—power electronics, data-center construction, cooling, packaging, and sensor assembly—where scale and logistics matter more than frontier IP.">
+          <div class="row-score">1420</div>
+          <div class="row-label">ai adjacent manufacturing</div>
+          <div class="row-track">
+            <div class="row-range" style="left:23.6290155882353%; width:23.5658005882353%;"></div>
+            <div class="row-bar" style="width:35.411915882352915%;"></div>
+            <div class="row-count" style="left:35.411915882352915%;">2</div>
+          </div>
+        </div>
+        <div class="row singleton"
+             id="cluster-countries_outside_ai_chain-singleton_regional_ai_hub"
+             data-cluster="singleton_regional_ai_hub"
+             data-description="Become the region&#x27;s AI hub by harmonizing regulation across borders, enabling cross-border data flows, and building shared compute and identity rails — so firms choose your jurisdiction as the default platform for an entire regional market."
+             data-size="1"
+             data-mean="1377.7"
+             data-min="1377.7"
+             data-max="1377.7"
+             data-toprank="87"
+             data-toptext="The core strategy is to become the region’s AI hub by harmonizing regulation, enabling cross-border data flows, and building shared compute and identity rails so that firms choose your jurisdiction as the default platform for an entire market.">
+          <div class="row-score">1378</div>
+          <div class="row-label">regional ai hub <span class="row-tag">singleton</span></div>
+          <div class="row-track">
+            <div class="row-range" style="left:22.86503735294118%; width:0.0%;"></div>
+            <div class="row-bar" style="width:22.86503735294118%;"></div>
+            <div class="row-count" style="left:22.86503735294118%;">1</div>
+          </div>
+        </div>
+        <div class="row"
+             id="cluster-countries_outside_ai_chain-tax_and_redistribute_ai_rents"
+             data-cluster="tax_and_redistribute_ai_rents"
+             data-description="Don&#x27;t chase the production chain — instead capture downstream rents by taxing automated economic activity (platform levies, AI taxes, natural-resource-style rents), redistributing via cash transfers/AI dividends, and protecting labor bargaining power against automation."
+             data-size="3"
+             data-mean="1349.9"
+             data-min="1323.3"
+             data-max="1389.1"
+             data-toprank="81"
+             data-toptext="The premise is wrong: transformative AI will commoditize most model capability, so the winning move is to build institutions that capture downstream rents—taxing automated economic activity, enforcing competition, and investing proceeds into public goods—rather than trying to enter the upstream production chain.">
+          <div class="row-score">1350</div>
+          <div class="row-label">tax and redistribute ai rents</div>
+          <div class="row-track">
+            <div class="row-range" style="left:6.850001470588254%; width:19.344861764705872%;"></div>
+            <div class="row-bar" style="width:14.681117156862777%;"></div>
+            <div class="row-count" style="left:14.681117156862777%;">3</div>
+          </div>
+        </div>
+        <div class="row singleton"
+             id="cluster-countries_outside_ai_chain-singleton_food_energy_security_resilience"
+             data-cluster="singleton_food_energy_security_resilience"
+             data-description="If transformative AI arrives soon, attempts to join the production chain are mostly wasted — secure food, energy, and internal-security resilience against AI-driven geopolitical and cyber shocks while keeping markets open to import capabilities."
+             data-size="1"
+             data-mean="1344.6"
+             data-min="1344.6"
+             data-max="1344.6"
+             data-toprank="94"
+             data-toptext="If transformative AI arrives soon, attempts to join the production chain are mostly wasted; the only robust strategy is to secure food, energy, and internal security resilience against AI-driven geopolitical and cyber shocks while keeping markets open to import capabilities.">
+          <div class="row-score">1345</div>
+          <div class="row-label">food energy security resilience <span class="row-tag">singleton</span></div>
+          <div class="row-track">
+            <div class="row-range" style="left:13.106000882352928%; width:0.0%;"></div>
+            <div class="row-bar" style="width:13.106000882352928%;"></div>
+            <div class="row-count" style="left:13.106000882352928%;">1</div>
+          </div>
+        </div>
+        <div class="row singleton"
+             id="cluster-countries_outside_ai_chain-singleton_macro_fundamentals"
+             data-cluster="singleton_macro_fundamentals"
+             data-description="Premise denial — countries won&#x27;t be sidestepped if they focus on macro fundamentals (property rights, infrastructure, education, trade openness), because transformative AI lowers capability barriers and rewards places that absorb general-purpose technology quickly."
+             data-size="1"
+             data-mean="1326.0"
+             data-min="1326.0"
+             data-max="1326.0"
+             data-toprank="98"
+             data-toptext="Premise denial: countries won’t be “sidestepped” if they focus on macro fundamentals—property rights, infrastructure, education, and trade openness—because transformative AI lowers capability barriers and rewards places that can absorb general-purpose technology quickly.">
+          <div class="row-score">1326</div>
+          <div class="row-label">macro fundamentals <span class="row-tag">singleton</span></div>
+          <div class="row-track">
+            <div class="row-range" style="left:7.657462941176485%; width:0.0%;"></div>
+            <div class="row-bar" style="width:7.657462941176485%;"></div>
+            <div class="row-count" style="left:7.657462941176485%;">1</div>
+          </div>
+        </div>
+        <div class="row"
+             id="cluster-countries_outside_ai_chain-social_insurance_labor_resilience"
+             data-cluster="social_insurance_labor_resilience"
+             data-description="The main risk is domestic instability from labor disruption, not lack of chip manufacturing — fund wage insurance, rapid credentialing, robust social insurance, retraining, and pro-competition enforcement so citizens benefit from cheap intelligence even if no domestic champions emerge."
+             data-size="2"
+             data-mean="1325.9"
+             data-min="1320.6"
+             data-max="1331.2"
+             data-toprank="96"
+             data-toptext="The best defense is labor-market shock absorption at scale: immediately create a wage-insurance plus rapid credentialing system funded by VAT/AI levies, because political stability and human capital retention matter more than owning chips.">
+          <div class="row-score">1326</div>
+          <div class="row-label">social insurance labor resilience</div>
+          <div class="row-track">
+            <div class="row-range" style="left:6.058910294117635%; width:3.1138797058823746%;"></div>
+            <div class="row-bar" style="width:7.615850147058822%;"></div>
+            <div class="row-count" style="left:7.615850147058822%;">2</div>
+          </div>
+        </div></div>
+      <div class="chart-axis"><div class="xtick" style="left:0.0%;"><span>1300</span></div><div class="xtick" style="left:29.411764705882355%;"><span>1400</span></div><div class="xtick" style="left:58.82352941176471%;"><span>1500</span></div><div class="xtick" style="left:88.23529411764706%;"><span>1600</span></div></div>
+    </div>
+    </section>
+
+<h2 id="gpt55-response" class="section-heading"><a href="#gpt55-response">Slowdown argument (Q1): GPT-5.5 Pro full response</a></h2>
+
+<div class="methodology">
+  <p><strong>Methodology.</strong> GPT-5.5 Pro was given the clustered and scored thesis statements above and asked to answer the first question again following Dwarkesh's original instructions. Its full response follows.</p>
+</div>
+
+<article class="response-essay">
+  <p>The slowdown argument imagined the next phase of AI as monolithic long-horizon RL: let the model work for three days, discover at the end whether it succeeded, and somehow backpropagate one bit of reward through a gigantic trajectory. That regime really would be ugly. But it is not the regime that has been driving recent progress.</p>
+  <p>The important unit of progress is not “a long task.” It is a verified trace: sample many candidate reasoning/tool-use trajectories, check them cheaply, learn from the winners, and then distill the expensive search back into a cheaper policy. The horizon wall is real where no such verifier exists. The mistake was thinking the frontier had already run out of verifier-rich territory.</p>
+  <p>Coding is the cleanest example. “Build this feature” may look like a multi-day task, but the work is full of dense signals: compiler errors, type errors, unit tests, logs, diffs, benchmarks, linters, API contracts, screenshots, runtime traces, and eventually user-visible behavior. The same is true, to varying degrees, for math, formal proof, data analysis, cyber, and many scientific workflows. These domains turn “did the agent succeed after days?” into “did this subclaim compile, execute, prove, reproduce, or pass tests?” The effective horizon is much shorter than the nominal human task horizon.</p>
+  <p>This is why the o-series result was not just “more RL.” OpenAI described o1 as improving both with more RL train-time compute and with more time spent thinking at test time; on AIME 2024, o1 improved from 74% single-sample accuracy to 93% when 1,000 samples were reranked by a learned scoring function. That is the signature of search plus verification, not just ordinary imitation learning. OpenAI’s earlier process-supervision work made the same point in miniature: rewarding correct intermediate steps can outperform merely rewarding the final answer.</p>
+  <p>DeepSeek-R1 made the mechanism even more legible. R1-Zero was trained with large-scale RL on a base model, but the rewards were largely rule-based in domains like math and coding: final-answer checks, format checks, and compiler/test feedback. DeepSeek explicitly avoided neural reward models for reasoning tasks because they were more hackable and complex, while rule-based rewards gave precise feedback. Then DeepSeek used rejection sampling, SFT, and distillation to move reasoning patterns from the expensive model into smaller dense models; it reported that direct distillation from R1 to a 32B model beat applying RL directly to that smaller model.</p>
+  <p>That last fact is central. Search is not just an inference-time product feature; it is a data-generation engine. Once a model can occasionally solve a hard problem, you can sample many attempts, filter by verifier, train on the good traces, and repeat. One expensive solved trajectory can become thousands or millions of cheap supervised tokens. This is the search-distill flywheel. It lets progress compound without needing every downstream model to rediscover the same reasoning behavior through fresh online RL.</p>
+  <p>The compute argument also overcounted the wrong thing. If you picture capability as “RL environment interaction FLOPs,” then GPT-4 → o1 → o3 looks like you quickly exhaust the feasible orders of magnitude. But if capability comes from a portfolio of train-time RL, test-time search, verifier construction, synthetic tasks, tool-use scaffolds, and distillation, then the bottleneck moves. You can buy more capability by spending at inference on hard cases, by improving verifiers, by curating harder prompts, by reusing successful trajectories, or by teaching the model when to call tools. OpenAI’s o3/o4-mini release explicitly says they pushed another order of magnitude in both RL training compute and inference-time reasoning, while also training models through RL to use tools and decide when to use them. That is not “naive policy gradient got cheap”; it is “the learning system changed.”</p>
+  <p>There is another missed feedback loop: better models make their own horizons shorter. A weak model explores almost randomly, so sparse rewards are devastating. A strong pretrained model starts with a good world prior, proposes plausible decompositions, writes mostly-correct code, identifies what to test, and notices when something smells wrong. As the base model improves, each rollout contains more meaningful decision points and fewer hopeless branches. The marginal rollout becomes more valuable. For a while, reward-per-FLOP can rise even as tasks get longer.</p>
+  <p>This explains why progress looks especially fast in agentic coding, cyber, computer use, and technical research. GPT-5.5’s public results emphasize agentic coding, computer use, knowledge work, and scientific workflows, with gains on Terminal-Bench, OSWorld-Verified, GDPval, and long scientific-analysis tasks. Anthropic’s Mythos Preview story points in the same direction: a large jump in general coding/reasoning produced a large jump in vulnerability discovery and exploit development, because cyber is unusually verifier-rich once the model can read code and run experiments.</p>
+  <p>So I would half-deny the premise. AI progress has not yet proved that we can do sample-efficient RL over arbitrary month-long real-world projects with fuzzy objectives. It has proved something narrower but still enormous: much of economically valuable cognitive labor can be embedded in digital environments where intermediate work is inspectable, executable, and compressible into training data.</p>
+  <p>The prediction is therefore uneven acceleration. Expect continued rapid gains in domains with cheap verifiers or simulators: code, math, cyber, formal methods, data analysis, logistics-like planning, spreadsheet work, and parts of biology that can be reduced to computational assays. Expect slower progress where success is delayed, social, taste-laden, adversarial in non-formal ways, or dependent on expensive physical experiments. “Run a company,” “pick a strategy,” “manage a team,” and “discover a drug in the wet lab” will not become easy merely because AIME and SWE-bench saturate.</p>
+  <p>The old horizon intuition was not stupid. It describes the wall we hit after we exhaust the giant backlog of verifiable digital work. But it fired too early. Before the world becomes a sparse-reward POMDP, it looks like a massive software-and-science corpus with compilers, tests, theorem provers, logs, sandboxes, and model critics attached. The thing scaling is not RL compute alone. It is verified thought: produced by search, checked by tools, and distilled back into the model.</p>
+</article>
+
+</div>
+
+<div id="tooltip">
+  <div class="tt-label" id="tt-label"></div>
+  <div class="tt-desc" id="tt-desc"></div>
+  <div class="tt-stats" id="tt-stats"></div>
+  <div class="tt-top-label">top-ranked response (rank <span id="tt-toprank"></span>)</div>
+  <div class="tt-top-text" id="tt-toptext"></div>
+</div>
+
+<script>
+(function() {
+  const tooltip = document.getElementById('tooltip');
+  const ttLabel = document.getElementById('tt-label');
+  const ttDesc  = document.getElementById('tt-desc');
+  const ttStats = document.getElementById('tt-stats');
+  const ttRank  = document.getElementById('tt-toprank');
+  const ttText  = document.getElementById('tt-toptext');
+
+  function showTooltip(row, evt) {
+    ttLabel.textContent = row.dataset.cluster.replace(/_/g, ' ');
+    ttDesc.textContent  = row.dataset.description;
+    ttStats.innerHTML = `
+      <span>n<strong>${row.dataset.size}</strong></span>
+      <span>mean<strong>${Math.round(parseFloat(row.dataset.mean))}</strong></span>
+      <span>min<strong>${Math.round(parseFloat(row.dataset.min))}</strong></span>
+      <span>max<strong>${Math.round(parseFloat(row.dataset.max))}</strong></span>
+    `;
+    ttRank.textContent = '#' + row.dataset.toprank;
+    ttText.textContent = row.dataset.toptext;
+    tooltip.classList.add('visible');
+    positionTooltip(evt);
+  }
+
+  function positionTooltip(evt) {
+    const tw = tooltip.offsetWidth, th = tooltip.offsetHeight;
+    const vw = window.innerWidth, vh = window.innerHeight;
+    let x = evt.clientX + 14;
+    let y = evt.clientY + 14;
+    if (x + tw + 12 > vw) x = evt.clientX - tw - 14;
+    if (y + th + 12 > vh) y = evt.clientY - th - 14;
+    if (x < 8) x = 8;
+    if (y < 8) y = 8;
+    tooltip.style.left = x + 'px';
+    tooltip.style.top  = y + 'px';
+  }
+
+  function hideTooltip() { tooltip.classList.remove('visible'); }
+
+  document.querySelectorAll('.row').forEach(row => {
+    row.addEventListener('mouseenter', e => showTooltip(row, e));
+    row.addEventListener('mousemove',  e => positionTooltip(e));
+    row.addEventListener('mouseleave', hideTooltip);
+  });
+})();
+</script>
+</body>
+</html>
